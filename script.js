@@ -3,18 +3,20 @@ const navLinks = document.getElementById("navLinks");
 const checkboxes = document.querySelectorAll(".service-item input");
 const estimatedCost = document.getElementById("estimatedCost");
 
-menuButton.addEventListener("click", () => {
-  navLinks.classList.toggle("open");
+if (menuButton && navLinks) {
+  menuButton.addEventListener("click", () => {
+    navLinks.classList.toggle("open");
 
-  menuButton.textContent = navLinks.classList.contains("open") ? "✕" : "☰";
-});
-
-navLinks.querySelectorAll("a").forEach((link) => {
-  link.addEventListener("click", () => {
-    navLinks.classList.remove("open");
-    menuButton.textContent = "☰";
+    menuButton.textContent = navLinks.classList.contains("open") ? "✕" : "☰";
   });
-});
+
+  navLinks.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => {
+      navLinks.classList.remove("open");
+      menuButton.textContent = "☰";
+    });
+  });
+}
 
 function updateEstimatedCost() {
   let total = 0;
@@ -25,7 +27,9 @@ function updateEstimatedCost() {
     }
   });
 
-  estimatedCost.textContent = `₱${total.toLocaleString("en-PH")}`;
+  if (estimatedCost) {
+    estimatedCost.textContent = `₱${total.toLocaleString("en-PH")}`;
+  }
 }
 
 checkboxes.forEach((checkbox) => {
