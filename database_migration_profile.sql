@@ -1,0 +1,7 @@
+USE legato_db;
+
+ALTER TABLE users
+  ADD COLUMN full_name VARCHAR(150) NOT NULL DEFAULT '' AFTER password_hash,
+  ADD COLUMN nickname VARCHAR(80) NOT NULL DEFAULT '' AFTER full_name,
+  ADD COLUMN phone VARCHAR(30) NOT NULL DEFAULT '' AFTER nickname,
+  ADD COLUMN location VARCHAR(255) NOT NULL DEFAULT '' AFTER phone;

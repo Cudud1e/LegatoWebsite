@@ -76,6 +76,19 @@ a {
   letter-spacing: 0.16em;
 }
 
+@media (max-width: 800px) {
+  .dashboard-grid,
+  .summary-grid,
+  .steps-grid,
+  .receipt-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .booking-meta {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
 .brand small {
   display: block;
   margin-top: 2px;
@@ -241,6 +254,18 @@ h2 {
   justify-content: center;
   gap: 16px;
   margin-top: 38px;
+}
+
+.welcome-panel {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 24px;
+  margin-right: auto;
+  padding: 12px 16px;
+  border: 1px solid rgba(212, 175, 55, 0.5);
+  background: rgba(17, 17, 17, 0.7);
+  color: var(--ivory);
+  font-size: 12px;
 }
 
 .feature-tags {
@@ -573,6 +598,235 @@ h2 {
   padding: 110px 0;
 }
 
+.thank-you-hero {
+  min-height: 430px;
+}
+
+.thank-you-hero p:not(.section-label) {
+  max-width: 760px;
+  margin: 28px auto 0;
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+.inquiry-summary {
+  padding: 34px;
+  border: 1px solid var(--border);
+  background: var(--charcoal);
+}
+
+.summary-grid,
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.summary-grid span {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.summary-grid strong {
+  display: block;
+  color: var(--ivory);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.summary-grid small {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.next-steps {
+  padding-top: 80px;
+}
+
+.steps-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.steps-grid article {
+  padding-top: 22px;
+  border-top: 1px solid rgba(212, 175, 55, 0.4);
+}
+
+.steps-grid b {
+  color: var(--gold);
+  font-size: 12px;
+}
+
+.steps-grid h2 {
+  margin: 18px 0 10px;
+  font-size: 22px;
+}
+
+.steps-grid p,
+.urgent-contact {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.thank-you-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 56px;
+}
+
+.urgent-contact {
+  margin-top: 34px;
+}
+
+.urgent-contact a {
+  color: var(--gold);
+}
+
+.dashboard-hero {
+  min-height: 390px;
+}
+
+.dashboard-hero p:not(.section-label) {
+  max-width: 640px;
+  margin-top: 24px;
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 48px;
+  align-items: start;
+}
+
+.profile-card,
+.booking-card,
+.empty-state {
+  padding: 30px;
+  border: 1px solid var(--border);
+  background: var(--charcoal);
+}
+
+.profile-card h2 {
+  margin: 0 0 28px;
+  font-size: 30px;
+}
+
+.profile-card dl {
+  display: grid;
+  gap: 18px;
+  margin: 0 0 30px;
+}
+
+.profile-card dt,
+.profile-card dd {
+  margin: 0;
+}
+
+.profile-card dt {
+  margin-bottom: 5px;
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.profile-card dd {
+  color: var(--ivory);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.history-panel .section-heading {
+  margin-bottom: 26px;
+}
+
+.booking-card + .booking-card {
+  margin-top: 18px;
+}
+
+.booking-card-header,
+.booking-meta,
+.financial-summary span,
+.receipt-items li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.booking-reference {
+  color: var(--gold);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.booking-card h3 {
+  margin: 8px 0 0;
+  font-family: "Playfair Display", serif;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.status-badge {
+  padding: 7px 10px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.status-pending-review { color: var(--gold); border: 1px solid var(--gold); }
+.status-confirmed { color: #8ed39b; border: 1px solid #538c61; }
+.status-completed { color: #aaa; border: 1px solid #666; }
+
+.booking-meta {
+  margin: 26px 0 20px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.booking-meta strong {
+  color: var(--ivory);
+  font-size: 16px;
+}
+
+.receipt-details {
+  border-top: 1px solid rgba(245, 242, 235, 0.12);
+  padding-top: 16px;
+}
+
+.receipt-details summary {
+  color: var(--gold);
+  cursor: pointer;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.receipt-content { padding-top: 28px; }
+.receipt-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.receipt-content h4 { margin: 0 0 10px; color: var(--gold); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; }
+.receipt-content p { color: var(--muted); font-size: 13px; line-height: 1.8; }
+.receipt-items { margin: 0 0 24px; padding: 0; list-style: none; border-top: 1px solid rgba(245, 242, 235, 0.12); }
+.receipt-items li { padding: 12px 0; border-bottom: 1px solid rgba(245, 242, 235, 0.12); color: var(--muted); font-size: 12px; }
+.receipt-items strong { color: var(--ivory); }
+.financial-summary { display: grid; gap: 10px; padding: 18px 0; border-bottom: 1px solid rgba(245, 242, 235, 0.12); }
+.financial-summary span { color: var(--muted); font-size: 12px; }
+.financial-summary strong { color: var(--ivory); }
+.receipt-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
+.empty-state p { color: var(--muted); }
+
 .story-grid,
 .contact-grid {
   display: grid;
@@ -629,7 +883,12 @@ h2 {
   text-transform: uppercase;
 }
 
+.auth-card label[hidden] {
+  display: none;
+}
+
 .contact-form input,
+.contact-form select,
 .contact-form textarea,
 .auth-card input {
   width: 100%;
@@ -639,6 +898,42 @@ h2 {
   color: var(--ivory);
   font: inherit;
   resize: vertical;
+}
+
+.contact-form select {
+  appearance: none;
+}
+
+.contact-form fieldset {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.contact-form legend {
+  margin-bottom: 9px;
+  color: rgba(245, 242, 235, 0.7);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.contact-form .check-option {
+  display: flex;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 9px;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.contact-form .check-option input {
+  width: auto;
+  padding: 0;
 }
 
 .contact-form input:focus,
@@ -921,4 +1216,17 @@ footer {
   .vip3 { right: 0; }
   .vip2 { right: 10px; }
   .vip1 { right: 52px; }
+}
+
+.auth-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-logout {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
 }

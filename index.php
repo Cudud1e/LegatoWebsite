@@ -1,3 +1,10 @@
+<?php
+session_start();
+$sessionUser = $_SESSION['user'] ?? [];
+$isLoggedIn = isset($sessionUser['id']);
+$userEmail = htmlspecialchars((string) ($sessionUser['email'] ?? ''), ENT_QUOTES, 'UTF-8');
+$userNickname = htmlspecialchars((string) ($sessionUser['nickname'] ?? ''), ENT_QUOTES, 'UTF-8');
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,7 +25,7 @@
 <body>
   <header class="navbar">
     <div class="container nav-content">
-      <a href="#" class="brand">
+      <a href="index.php" class="brand">
   <img
   class="custom-logo"
   src="Assest/legato1.png"
@@ -27,16 +34,21 @@
 </a>
 
       <nav class="nav-links" id="navLinks">
-        <a class="active" href="index.html">Home</a>
-        <a href="about.html">About Us</a>
-        <a href="packages.html">VIP Packages</a>
-        <a href="custom.html">Custom Services</a>
-        <a href="contact.html">Contact</a>
+        <a class="active" href="index.php">Home</a>
+        <a href="about.php">About Us</a>
+        <a href="packages.php">VIP Packages</a>
+        <a href="custom.php">Custom Services</a>
+        <a href="contact.php">Contact</a>
       </nav>
 
       <div class="nav-actions">
-        <a href="custom.html" class="btn btn-gold nav-book">Book An Event</a>
-        <a href="login.html" class="nav-login">Log In</a>
+        <a href="booking.php" class="btn btn-gold nav-book">Book An Event</a>
+        <?php if ($isLoggedIn): ?>
+          <a href="profile.php" class="nav-login">My Account</a>
+          <a href="logout.php" class="nav-login">Log Out</a>
+        <?php else: ?>
+          <a href="login.php?redirect=booking.php&message=Please+log+in+or+create+an+account+to+finalize+your+event+booking." class="nav-login">Log In</a>
+        <?php endif; ?>
         <button class="menu-button" id="menuButton" aria-label="Open menu">
           ☰
         </button>
@@ -49,6 +61,9 @@
       <div class="hero-pattern"></div>
 
       <div class="container hero-content">
+        <?php if ($isLoggedIn): ?>
+          <div class="welcome-panel"><?php echo $userNickname ?: $userEmail; ?></div>
+        <?php endif; ?>
         <span class="eyebrow-badge">Premium Event Production in Dumaguete City</span>
 
         <h1>
@@ -138,7 +153,7 @@
               <li>Sound Tech & Program Guidance</li>
             </ul>
 
-            <a href="#custom" class="btn btn-outline package-button">Select VIP 1</a>
+            <a href="booking.php?package=VIP1" class="btn btn-outline package-button">Select VIP 1</a>
           </article>
 
           <article class="package-card featured-package">
@@ -159,7 +174,7 @@
               <li>Dedicated Vendor Liaison</li>
             </ul>
 
-            <a href="#custom" class="btn btn-gold package-button">Select VIP 2</a>
+            <a href="booking.php?package=VIP2" class="btn btn-gold package-button">Select VIP 2</a>
           </article>
 
           <article class="package-card">
@@ -179,7 +194,7 @@
               <li>Photo/Video & VIP Concierge</li>
             </ul>
 
-            <a href="#custom" class="btn btn-outline package-button">Select VIP 3</a>
+            <a href="booking.php?package=VIP3" class="btn btn-outline package-button">Select VIP 3</a>
           </article>
         </div>
       </div>
@@ -246,7 +261,7 @@
             venue, event duration, and technical requirements review.
           </p>
 
-          <a href="#contact" class="btn btn-gold full-width">
+          <a href="booking.php?package=Custom%20Build" class="btn btn-gold full-width">
             Reserve Custom Booking
           </a>
         </aside>

@@ -6,11 +6,29 @@ const authDescription = document.getElementById("authDescription");
 const authSubmit = document.getElementById("authSubmit");
 const switchPrompt = document.getElementById("switchPrompt");
 const formMessage = document.getElementById("formMessage");
+const authMode = document.getElementById("authMode");
+const registrationFields = document.querySelectorAll(".registration-field");
 let createAccountMode = false;
+
+if (authMode) {
+  createAccountMode = authMode.value === "register";
+}
+
+function updateRegistrationFields() {
+  confirmField.hidden = !createAccountMode;
+  document.getElementById("confirmPassword").required = createAccountMode;
+  registrationFields.forEach((field) => {
+    field.hidden = !createAccountMode;
+    field.querySelector("input").required = createAccountMode;
+  });
+}
+
+updateRegistrationFields();
 
 switchAuth.addEventListener("click", () => {
   createAccountMode = !createAccountMode;
-  confirmField.hidden = !createAccountMode;
+  authMode.value = createAccountMode ? "register" : "login";
+  updateRegistrationFields();
   authTitle.textContent = createAccountMode ? "Create your account." : "Welcome back.";
   authDescription.textContent = createAccountMode
     ? "Save your event inquiry details and stay connected with the LEGATO team."
@@ -21,9 +39,3 @@ switchAuth.addEventListener("click", () => {
   formMessage.textContent = "";
 });
 
-authForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-  formMessage.textContent = createAccountMode
-    ? "Your account details are ready. Our team will be in touch soon."
-    : "Thanks for logging in. Your client portal is ready for your next booking.";
-});

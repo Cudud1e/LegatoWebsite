@@ -13,7 +13,7 @@
   <header class="navbar"><div class="container nav-content">
     <a href="index.html" class="brand"><img class="custom-logo" src="Assest/legato1.png" alt="LEGATO Events & Productions" /></a>
     <nav class="nav-links" id="navLinks"><a href="index.html">Home</a><a class="active" href="about.html">About Us</a><a href="packages.html">VIP Packages</a><a href="custom.html">Custom Services</a><a href="contact.html">Contact</a></nav>
-    <div class="nav-actions"><a href="custom.html" class="btn btn-gold nav-book">Book An Event</a><a href="login.html" class="nav-login">Log In</a><button class="menu-button" id="menuButton" aria-label="Open menu">☰</button></div>
+    <div class="nav-actions"><a href="booking.php" class="btn btn-gold nav-book">Book An Event</a><?php include __DIR__ . '/includes/auth_nav.php'; ?><button class="menu-button" id="menuButton" aria-label="Open menu">☰</button></div>
   </div></header>
   <main>
     <section class="page-hero"><div class="container"><p class="section-label">THE LEGATO DIFFERENCE</p><h1>Events with <em>meaning.</em></h1><p>We bring technical precision, creative direction, and genuine local talent together so every celebration feels effortless and unforgettable.</p></div></section>

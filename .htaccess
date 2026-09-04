@@ -1,0 +1,8 @@
+RewriteEngine On
+
+RewriteRule ^index\.html$ index.php [L]
+RewriteRule ^about\.html$ about.php [L]
+RewriteRule ^packages\.html$ packages.php [L]
+RewriteRule ^custom\.html$ custom.php [L]
+RewriteRule ^contact\.html$ contact.php [L]
+RewriteRule ^login\.html$ login.php [L]

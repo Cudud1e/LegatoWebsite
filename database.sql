@@ -1,0 +1,47 @@
+CREATE DATABASE IF NOT EXISTS legato_db
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+
+USE legato_db;
+
+CREATE TABLE users (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  full_name VARCHAR(150) NOT NULL,
+  nickname VARCHAR(80) NOT NULL,
+  phone VARCHAR(30) NOT NULL,
+  location VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE inquiries (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id INT UNSIGNED NULL,
+  name VARCHAR(120) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  phone VARCHAR(30) NOT NULL,
+  event_type VARCHAR(80) NOT NULL,
+  target_event_date DATE NOT NULL,
+  venue VARCHAR(255) NOT NULL,
+  guest_count INT UNSIGNED NOT NULL,
+  package_interest VARCHAR(100) NOT NULL,
+  budget_range VARCHAR(50) NULL,
+  requested_services TEXT NULL,
+  message TEXT NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_inquiries_user FOREIGN KEY (user_id) REFERENCES users(id)
+    ON DELETE SET NULL
+);
+
+CREATE TABLE bookings (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id INT UNSIGNED NULL,
+  name VARCHAR(120) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  services TEXT NOT NULL,
+  estimated_cost DECIMAL(10, 2) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_bookings_user FOREIGN KEY (user_id) REFERENCES users(id)
+    ON DELETE SET NULL
+);
