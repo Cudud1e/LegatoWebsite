@@ -3,19 +3,19 @@ declare(strict_types=1);
 session_start();
 require_once __DIR__ . '/db.php';
 
-$inquiryId = filter_var($_GET['inquiry_id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+$referenceNo = trim((string) ($_GET['ref'] ?? ''));
 $user = $_SESSION['user'] ?? [];
 $inquiry = null;
 
-if ($inquiryId) {
+if ($referenceNo !== '') {
     try {
         $pdo = getDatabaseConnection();
         if (isset($user['id'])) {
-            $statement = $pdo->prepare('SELECT id, target_event_date, package_interest, requested_services, venue FROM inquiries WHERE id = ? AND user_id = ?');
-            $statement->execute([$inquiryId, $user['id']]);
-        } elseif (($inquiryId === (int) ($_SESSION['last_inquiry_id'] ?? 0))) {
-            $statement = $pdo->prepare('SELECT id, target_event_date, package_interest, requested_services, venue FROM inquiries WHERE id = ? AND user_id IS NULL');
-            $statement->execute([$inquiryId]);
+            $statement = $pdo->prepare('SELECT reference_no, target_event_date, event_start_time, package_interest, requested_services, special_requests, venue, guest_count, status, COALESCE(total_amount, estimated_cost, 0) AS estimated_cost FROM inquiries WHERE reference_no = ? AND user_id = ?');
+            $statement->execute([$referenceNo, $user['id']]);
+          } elseif ($referenceNo === (string) ($_SESSION['last_inquiry_reference'] ?? '')) {
+            $statement = $pdo->prepare('SELECT reference_no, target_event_date, event_start_time, package_interest, requested_services, special_requests, venue, guest_count, status, COALESCE(total_amount, estimated_cost, 0) AS estimated_cost FROM inquiries WHERE reference_no = ? AND user_id IS NULL');
+            $statement->execute([$referenceNo]);
         }
         $inquiry = isset($statement) ? $statement->fetch() : false;
     } catch (PDOException $exception) {
@@ -25,7 +25,7 @@ if ($inquiryId) {
 
 if (!$inquiry) {
     http_response_code(404);
-    $inquiry = ['id' => $inquiryId ?: 'Unavailable', 'target_event_date' => null, 'package_interest' => 'Unavailable', 'requested_services' => '[]', 'venue' => 'Unavailable'];
+    $inquiry = ['reference_no' => 'Unavailable', 'target_event_date' => null, 'event_start_time' => null, 'package_interest' => 'Unavailable', 'requested_services' => '[]', 'special_requests' => null, 'venue' => 'Unavailable', 'guest_count' => 0, 'status' => 'Pending Review', 'estimated_cost' => 0];
 }
 
 $services = json_decode((string) $inquiry['requested_services'], true) ?: [];
@@ -46,10 +46,12 @@ require_once __DIR__ . '/includes/header.php';
       <div class="inquiry-summary">
         <p class="section-label">INQUIRY SUMMARY</p>
         <div class="summary-grid">
-          <div><span>Reference Number</span><strong>LEG-<?php echo escaped((string) $inquiry['id']); ?></strong></div>
+            <div><span>Reference Number</span><strong>#<?php echo escaped((string) $inquiry['reference_no']); ?></strong></div>
           <div><span>Event Date</span><strong><?php echo escaped($inquiry['target_event_date'] ?: 'Not provided'); ?></strong></div>
           <div><span>Package / Services</span><strong><?php echo escaped((string) $inquiry['package_interest']); ?><?php if ($services): ?><small><?php echo escaped(implode(', ', $services)); ?></small><?php endif; ?></strong></div>
           <div><span>Event Location</span><strong><?php echo escaped((string) $inquiry['venue']); ?></strong></div>
+          <div><span>Estimated Guests</span><strong><?php echo (int) $inquiry['guest_count']; ?></strong></div>
+          <div><span>Estimated Investment</span><strong>₱<?php echo number_format((float) $inquiry['estimated_cost'], 2); ?></strong></div>
         </div>
       </div>
       <div class="next-steps">

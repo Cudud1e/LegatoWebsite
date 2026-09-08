@@ -17,18 +17,28 @@ CREATE TABLE users (
 
 CREATE TABLE inquiries (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  reference_no VARCHAR(30) NOT NULL UNIQUE,
   user_id INT UNSIGNED NULL,
   name VARCHAR(120) NOT NULL,
   email VARCHAR(255) NOT NULL,
   phone VARCHAR(30) NOT NULL,
   event_type VARCHAR(80) NOT NULL,
   target_event_date DATE NOT NULL,
+  event_start_time TIME NOT NULL,
+  setup_access_time TIME NOT NULL,
   venue VARCHAR(255) NOT NULL,
+  venue_type VARCHAR(80) NOT NULL,
   guest_count INT UNSIGNED NOT NULL,
   package_interest VARCHAR(100) NOT NULL,
   budget_range VARCHAR(50) NULL,
   requested_services TEXT NULL,
+  special_requests TEXT NULL,
   message TEXT NOT NULL,
+  status ENUM('Pending Review', 'Confirmed', 'Completed', 'Cancelled') NOT NULL DEFAULT 'Pending Review',
+  total_amount DECIMAL(10, 2) NOT NULL DEFAULT 0,
+  estimated_cost DECIMAL(10, 2) NOT NULL DEFAULT 0,
+  deposit_status VARCHAR(80) NOT NULL DEFAULT 'Not Required Yet',
+  assigned_admin_id INT UNSIGNED NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_inquiries_user FOREIGN KEY (user_id) REFERENCES users(id)
     ON DELETE SET NULL
@@ -45,3 +55,33 @@ CREATE TABLE bookings (
   CONSTRAINT fk_bookings_user FOREIGN KEY (user_id) REFERENCES users(id)
     ON DELETE SET NULL
 );
+
+CREATE TABLE admin_users (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  full_name VARCHAR(150) NOT NULL,
+  role ENUM('super_admin', 'coordinator', 'staff') NOT NULL DEFAULT 'staff',
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE admin_tasks (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  inquiry_id INT UNSIGNED NOT NULL,
+  title VARCHAR(180) NOT NULL,
+  assigned_admin_id INT UNSIGNED NULL,
+  status ENUM('Open', 'In Progress', 'Done') NOT NULL DEFAULT 'Open',
+  due_date DATE NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_admin_tasks_inquiry FOREIGN KEY (inquiry_id) REFERENCES inquiries(id) ON DELETE CASCADE,
+  CONSTRAINT fk_admin_tasks_admin FOREIGN KEY (assigned_admin_id) REFERENCES admin_users(id) ON DELETE SET NULL
+);
+
+ALTER TABLE inquiries
+  ADD CONSTRAINT fk_inquiries_admin FOREIGN KEY (assigned_admin_id) REFERENCES admin_users(id) ON DELETE SET NULL;
+
+INSERT INTO admin_users (email, password_hash, full_name, role)
+VALUES ('admin@legatoevents.com', '$2y$10$XJ5iaVPBCGrwaMabLtRDQ.Nl9JFyFeO2gI.lTSbngP28R3YejyUuK', 'LEGATO Super Admin', 'super_admin');
