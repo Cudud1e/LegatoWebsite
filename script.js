@@ -15,14 +15,19 @@ async function syncAuthNavigation() {
   try {
     const response = await fetch("auth_status.php", { credentials: "same-origin" });
     const authState = await response.json();
-    const authLinks = navActions.querySelectorAll(".nav-login, .auth-nav");
+    const authLinks = navActions.querySelectorAll(".nav-login, .auth-nav, .profile-menu");
     authLinks.forEach((link) => link.remove());
 
     const authNav = document.createElement("div");
     authNav.className = "auth-nav";
+    const firstName = document.createElement("span");
+    firstName.textContent = `Welcome, ${authState.firstName || "Client"}`;
     authNav.innerHTML = authState.loggedIn
-      ? '<a href="profile.php" class="nav-login">My Account</a><a href="logout.php" class="nav-login">Log Out</a>'
+      ? '<details class="profile-menu"><summary class="profile-menu-trigger"><span class="user-avatar" aria-hidden="true">&#128100;</span></summary><div class="profile-menu-dropdown"><a href="profile.php">Dashboard / My Bookings</a><a href="profile.php#account-settings">Account Settings</a><a class="profile-menu-logout" href="logout.php">Log Out</a></div></details>'
       : '<a href="login.php" class="nav-login">Log In</a>';
+    if (authState.loggedIn) {
+      authNav.querySelector(".profile-menu-trigger").append(firstName);
+    }
     const menuButton = navActions.querySelector(".menu-button");
     navActions.insertBefore(authNav, menuButton);
   } catch (error) {

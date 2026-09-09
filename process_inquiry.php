@@ -2,12 +2,10 @@
 declare(strict_types=1);
 session_start();
 require_once __DIR__ . '/db.php';
-
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: contact.php');
     exit;
 }
-
 $user = $_SESSION['user'] ?? [];
 $name = trim($_POST['name'] ?? ($user['full_name'] ?? ''));
 $email = filter_var(trim($_POST['email'] ?? ($user['email'] ?? '')), FILTER_VALIDATE_EMAIL);
@@ -61,16 +59,13 @@ foreach ($customSelection as $service => $tier) {
     $serviceSummary[] = $service . ' - ' . $tier;
 }
 $validDate = DateTime::createFromFormat('Y-m-d', $eventDate);
-
 $validStartTime = preg_match('/^([01]\\d|2[0-3]):[0-5]\\d$/', $eventStartTime) === 1;
 $validSetupTime = preg_match('/^([01]\\d|2[0-3]):[0-5]\\d$/', $setupAccessTime) === 1;
-
 if ($name === '' || !$email || $phone === '' || !in_array($eventType, $eventTypes, true) || !$validDate || $validDate->format('Y-m-d') !== $eventDate || !$validStartTime || !$validSetupTime || $venue === '' || !in_array($venueType, $venueTypes, true) || $guestCount === false || !in_array($packageInterest, $packages, true) || ($packageInterest === 'Custom Build' && $totalAmount <= 0) || ($budgetRange !== null && !in_array($budgetRange, $budgetRanges, true)) || $inquiry === '') {
     $_SESSION['inquiry_error'] = 'Please complete all required booking details before sending your inquiry.';
     header('Location: contact.php');
     exit;
 }
-
 try {
     $pdo = getDatabaseConnection();
     $referenceNo = 'LGT-' . date('Y') . '-' . random_int(1000, 9999);
@@ -96,12 +91,10 @@ try {
     header('Location: contact.php');
     exit;
 }
-
 function sendAdminNotificationPlaceholder(int $inquiryId): void
 {
     // Connect this to PHPMailer or another mail provider in production.
 }
-
 function sendClientReceiptPlaceholder(string $email, int $inquiryId): void
 {
     // Send a confirmation receipt after SMTP credentials are configured.

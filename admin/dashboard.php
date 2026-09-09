@@ -1,7 +1,10 @@
 <?php
 declare(strict_types=1);
 session_start();
-if (!isset($_SESSION['admin_user']['id'])) { header('Location: login.php'); exit; }
+if (!isset($_SESSION['admin_user']['id'])) {
+    header('Location: login.php');
+    exit;
+}
 require_once __DIR__ . '/../db.php';
 $pdo = getDatabaseConnection();
 $message = $_SESSION['admin_message'] ?? '';
@@ -11,7 +14,232 @@ $kpis = ['total' => (int) $pdo->query('SELECT COUNT(*) FROM inquiries')->fetchCo
 $inquiries = $pdo->query('SELECT i.*, COALESCE(i.total_amount, i.estimated_cost, 0) AS current_total FROM inquiries i ORDER BY i.created_at DESC')->fetchAll();
 $admins = $pdo->query('SELECT id, full_name FROM admin_users WHERE is_active = 1 ORDER BY full_name')->fetchAll();
 $tasks = $pdo->query('SELECT t.id, t.title, t.status, t.due_date, i.reference_no, a.full_name FROM admin_tasks t JOIN inquiries i ON i.id = t.inquiry_id LEFT JOIN admin_users a ON a.id = t.assigned_admin_id ORDER BY t.status = "Done", t.due_date IS NULL, t.due_date')->fetchAll();
-function escaped(string $value): string { return htmlspecialchars($value, ENT_QUOTES, 'UTF-8'); }
-function money(float $value): string { return '₱' . number_format($value, 2); }
-function statusClass(string $value): string { return strtolower(str_replace(' ', '-', $value)); }
-?><!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Admin Dashboard | LEGATO</title><script src="https://cdn.tailwindcss.com"></script><script>tailwind.config={theme:{extend:{colors:{obsidian:'#121212',charcoal:'#181818',gold:'#D4AF37',ivory:'#F5F2EB'},fontFamily:{serif:['Playfair Display','serif'],sans:['Montserrat','sans-serif']}}}}</script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet"></head><body class="min-h-screen bg-[#121212] font-sans text-[#F5F2EB]"><div class="flex min-h-screen flex-col lg:flex-row"><aside class="flex w-full shrink-0 flex-col justify-between border-b border-[#282828] bg-[#181818] p-5 lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:border-b-0 lg:border-r"><div><a href="dashboard.php" class="flex items-center gap-3"><span class="font-serif text-2xl font-bold tracking-widest text-[#D4AF37]">L</span><span><strong class="block font-serif text-xl tracking-widest text-[#D4AF37]">LEGATO</strong><small class="block text-[9px] uppercase tracking-[0.25em] text-gray-500">Operations</small></span></a><nav class="mt-10 flex flex-wrap gap-2 lg:grid"><a class="flex items-center gap-3 rounded bg-[#222] px-4 py-3 text-sm text-[#D4AF37]" href="dashboard.php">Dashboard</a><a class="flex items-center gap-3 rounded px-4 py-3 text-sm text-gray-300 transition hover:bg-[#222] hover:text-[#D4AF37]" href="dashboard.php#inquiries">Inquiries</a><a class="flex items-center gap-3 rounded px-4 py-3 text-sm text-gray-300 transition hover:bg-[#222] hover:text-[#D4AF37]" href="dashboard.php#tasks">Task Tracker</a><a class="flex items-center gap-3 rounded px-4 py-3 text-sm text-gray-300 transition hover:bg-[#222] hover:text-[#D4AF37]" href="settings.php">Admin Profile</a><a class="flex items-center gap-3 rounded px-4 py-3 text-sm text-gray-300 transition hover:bg-[#222] hover:text-[#D4AF37]" href="logout.php">Logout</a></nav></div><div class="mt-6 hidden gap-1 border border-[#282828] bg-[#121212] p-4 lg:grid"><span class="text-[10px] text-gray-500">Signed in as</span><strong class="break-words text-sm"><?php echo escaped((string) ($_SESSION['admin_user']['full_name'] ?? 'Admin')); ?></strong><small class="text-[10px] uppercase tracking-wider text-[#D4AF37]"><?php echo escaped((string) ($_SESSION['admin_user']['role'] ?? 'staff')); ?></small></div></aside><div class="min-w-0 flex-1"><header class="flex flex-col justify-between gap-5 border-b border-[#282828] bg-[#121212] px-6 py-6 md:flex-row md:items-center lg:px-10"><div><p class="text-xs font-bold uppercase tracking-[0.25em] text-[#D4AF37]">LEGATO OPERATIONS / OVERVIEW</p><h1 class="mt-2 font-serif text-3xl font-bold">Admin Dashboard</h1></div><div class="flex items-center gap-3"><input class="w-full rounded border border-[#333] bg-[#181818] px-3 py-2 text-sm text-gray-200 outline-none placeholder:text-gray-600 focus:border-[#D4AF37] md:w-56" type="search" placeholder="Search inquiries"><span class="rounded border border-[#333] px-3 py-2 text-xs text-gray-400">Alerts <?php echo $kpis['pending']; ?></span></div></header><main class="space-y-8 px-6 py-8 lg:px-10"><?php if ($message): ?><p class="text-center text-xs text-[#D4AF37]"><?php echo escaped($message); ?></p><?php endif; ?><div class="grid grid-cols-1 gap-6 md:grid-cols-3"><div class="rounded-xl border border-[#282828] bg-[#181818] p-6"><span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Total Inquiries</span><strong class="mt-4 block font-serif text-4xl text-[#F5F2EB]"><?php echo $kpis['total']; ?></strong></div><div class="rounded-xl border border-[#282828] bg-[#181818] p-6"><span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Pending Review</span><strong class="mt-4 block font-serif text-4xl text-[#D4AF37]"><?php echo $kpis['pending']; ?></strong></div><div class="rounded-xl border border-[#282828] bg-[#181818] p-6"><span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Confirmed Events</span><strong class="mt-4 block font-serif text-4xl text-green-400"><?php echo $kpis['confirmed']; ?></strong></div></div><section id="inquiries" class="space-y-5"><div><p class="text-xs font-bold uppercase tracking-[0.25em] text-[#D4AF37]">INQUIRY QUEUE</p><h2 class="mt-2 font-serif text-3xl font-bold">Client bookings</h2></div><div class="space-y-6"><?php foreach ($inquiries as $inquiry): $services = json_decode((string) $inquiry['requested_services'], true) ?: []; ?><article class="rounded-xl border border-[#282828] bg-[#181818] p-6 shadow-lg"><div class="flex flex-col justify-between gap-4 border-b border-[#282828] pb-5 md:flex-row md:items-start"><div class="min-w-0"><span class="text-xs font-semibold uppercase tracking-wider text-[#D4AF37]">#<?php echo escaped((string) $inquiry['reference_no']); ?></span><h3 class="mt-2 break-words font-serif text-2xl font-bold"><?php echo escaped((string) $inquiry['name']); ?></h3><p class="mt-1 break-words text-xs text-gray-400"><?php echo escaped((string) $inquiry['email']); ?> · <?php echo escaped((string) $inquiry['phone']); ?></p></div><span class="shrink-0 rounded border px-3 py-1 text-[10px] font-bold uppercase tracking-wider <?php echo $inquiry['status'] === 'Confirmed' ? 'border-green-500 text-green-400' : ($inquiry['status'] === 'Completed' ? 'border-blue-500 text-blue-400' : ($inquiry['status'] === 'Cancelled' ? 'border-red-500 text-red-400' : 'border-[#D4AF37] text-[#D4AF37]')); ?>"><?php echo escaped((string) $inquiry['status']); ?></span></div><div class="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2"><div class="flex flex-col gap-1"><span class="text-xs font-semibold uppercase tracking-wider text-gray-400">Event Profile</span><strong class="text-sm font-medium text-[#F5F2EB]"><?php echo escaped((string) $inquiry['event_type']); ?></strong><p class="text-xs leading-6 text-gray-400"><?php echo (int) $inquiry['guest_count']; ?> guests · <?php echo escaped((string) $inquiry['target_event_date']); ?> at <?php echo escaped((string) $inquiry['event_start_time']); ?></p></div><div class="flex flex-col gap-1"><span class="text-xs font-semibold uppercase tracking-wider text-gray-400">Logistics</span><strong class="text-sm font-medium text-[#F5F2EB]"><?php echo escaped((string) $inquiry['venue']); ?></strong><p class="text-xs leading-6 text-gray-400"><?php echo escaped((string) $inquiry['venue_type']); ?> · Setup <?php echo escaped((string) $inquiry['setup_access_time']); ?></p></div><div class="flex flex-col gap-2"><span class="text-xs font-semibold uppercase tracking-wider text-gray-400">Selected Tiers</span><strong class="text-sm font-medium text-[#F5F2EB]"><?php echo escaped((string) $inquiry['package_interest']); ?></strong><ul class="space-y-1 text-xs text-gray-400"><?php foreach ($services as $service): ?><li class="border-l-2 border-[#D4AF37] pl-2"><?php echo escaped((string) $service); ?></li><?php endforeach; ?></ul></div><div class="flex flex-col gap-2"><span class="text-xs font-semibold uppercase tracking-wider text-gray-400">Client Notes</span><p class="rounded border border-[#222] bg-[#121212] p-3 text-xs italic leading-6 text-gray-400"><?php echo nl2br(escaped((string) ($inquiry['special_requests'] ?: $inquiry['message']))); ?></p></div></div><form class="mt-6 flex flex-col gap-3 border-t border-[#282828] pt-5 md:flex-row md:items-end" method="post" action="update_inquiry.php"><input type="hidden" name="inquiry_id" value="<?php echo (int) $inquiry['id']; ?>"><label class="flex min-w-0 flex-1 flex-col gap-1 text-xs font-semibold uppercase tracking-wider text-gray-400">Final investment<input class="w-full rounded border border-[#333] bg-[#121212] px-3 py-2 text-[#D4AF37] outline-none focus:border-[#D4AF37]" name="total_amount" type="number" min="0" step="0.01" value="<?php echo number_format((float) $inquiry['current_total'], 2, '.', ''); ?>"></label><label class="flex min-w-0 flex-1 flex-col gap-1 text-xs font-semibold uppercase tracking-wider text-gray-400">Status<select class="w-full cursor-pointer rounded border border-[#333] bg-[#121212] px-3 py-2 text-gray-200 outline-none focus:border-[#D4AF37]" name="status"><?php foreach ($statuses as $status): ?><option<?php echo $status === $inquiry['status'] ? ' selected' : ''; ?>><?php echo escaped($status); ?></option><?php endforeach; ?></select></label><button class="rounded bg-[#D4AF37] px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-black transition hover:bg-[#b8952d]" type="submit">Save Price / Update</button></form></article><?php endforeach; ?></div></section><section id="tasks" class="space-y-5"><div><p class="text-xs font-bold uppercase tracking-[0.25em] text-[#D4AF37]">PRODUCTION TASK TRACKER</p><h2 class="mt-2 font-serif text-2xl font-bold">Team checklist</h2></div><form class="flex flex-col gap-3 rounded-lg border border-[#282828] bg-[#181818] p-4 md:flex-row md:items-center" method="post" action="add_task.php"><input type="hidden" name="action" value="add"><select class="grow rounded border border-[#333] bg-[#121212] p-2.5 text-sm text-gray-200 outline-none focus:border-[#D4AF37]" name="inquiry_id" required><option value="">Select booking</option><?php foreach ($inquiries as $inquiry): ?><option value="<?php echo (int) $inquiry['id']; ?>"><?php echo escaped((string) $inquiry['name']); ?> - <?php echo escaped((string) $inquiry['reference_no']); ?></option><?php endforeach; ?></select><input class="grow rounded border border-[#333] bg-[#121212] p-2.5 text-sm text-gray-200 outline-none placeholder:text-gray-500 focus:border-[#D4AF37]" name="title" type="text" placeholder="Task name" required><select class="rounded border border-[#333] bg-[#121212] p-2.5 text-sm text-gray-200 outline-none focus:border-[#D4AF37]" name="assigned_admin_id"><option value="">Assign staff</option><?php foreach ($admins as $staff): ?><option value="<?php echo (int) $staff['id']; ?>"><?php echo escaped($staff['full_name']); ?></option><?php endforeach; ?></select><input class="rounded border border-[#333] bg-[#121212] p-2.5 text-sm text-gray-200 outline-none focus:border-[#D4AF37]" name="due_date" type="date"><button class="rounded bg-[#D4AF37] px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-black transition hover:bg-[#b8952d]" type="submit">Add Task</button></form><div class="overflow-hidden rounded-lg border border-[#282828] bg-[#181818]"><?php foreach ($tasks as $task): ?><div class="flex flex-col gap-3 border-b border-[#282828] p-4 last:border-0 md:flex-row md:items-center"><form method="post" action="add_task.php"><input type="hidden" name="action" value="toggle"><input type="hidden" name="task_id" value="<?php echo (int) $task['id']; ?>"><label class="flex items-center gap-2 text-xs text-gray-400"><input class="h-4 w-4 accent-[#D4AF37]" type="checkbox" name="completed" value="1" onchange="this.form.submit()"<?php echo $task['status'] === 'Done' ? ' checked' : ''; ?>>Complete</label></form><div class="min-w-0 flex-1"><strong class="block break-words text-sm"><?php echo escaped((string) $task['title']); ?></strong><span class="block break-words text-xs text-gray-500"><?php echo escaped((string) $task['reference_no']); ?> · <?php echo escaped((string) ($task['full_name'] ?? 'Unassigned')); ?><?php if ($task['due_date']): ?> · Due <?php echo escaped((string) $task['due_date']); ?><?php endif; ?></span></div><form method="post" action="add_task.php"><input type="hidden" name="action" value="delete"><input type="hidden" name="task_id" value="<?php echo (int) $task['id']; ?>"><button class="rounded border border-red-900 px-3 py-2 text-xs uppercase tracking-wider text-red-400 transition hover:border-red-400" type="submit">Delete</button></form></div><?php endforeach; ?><?php if (!$tasks): ?><p class="p-6 text-sm text-gray-500">No production tasks yet.</p><?php endif; ?></div></section></main></div></div></body></html>
+function escaped(string $value): string {
+    return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+}
+function money(float $value): string {
+    return '₱' . number_format($value, 2);
+}
+function statusClass(string $value): string {
+    return strtolower(str_replace(' ', '-', $value));
+}
+?>
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Admin Dashboard | LEGATO</title>
+        <script src="https://cdn.tailwindcss.com">
+        </script>
+        <script>tailwind.config={theme:{extend:{colors:{obsidian:'#121212',charcoal:'#181818',gold:'#D4AF37',ivory:'#F5F2EB'},fontFamily:{serif:['Playfair Display','serif'],sans:['Montserrat','sans-serif']}}}}</script>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    </head>
+    <body class="min-h-screen bg-[#121212] font-sans text-[#F5F2EB]">
+        <div class="flex min-h-screen flex-col lg:flex-row">
+            <aside class="flex w-full shrink-0 flex-col justify-between border-b border-[#282828] bg-[#181818] p-5 lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:border-b-0 lg:border-r">
+                <div>
+                    <a href="dashboard.php" class="flex items-center gap-3">
+                        <img src="../Assest/legato1.png" alt="LEGATO Operations" class="h-16 sm:h-20 lg:h-24 w-auto object-contain transition-transform duration-200 hover:scale-105">
+                    </a>
+                    <nav class="mt-10 flex flex-wrap gap-2 lg:grid">
+                        <a class="flex items-center gap-3 rounded bg-[#222] px-4 py-3 text-sm text-[#D4AF37]" href="dashboard.php">Dashboard</a>
+                        <a class="flex items-center gap-3 rounded px-4 py-3 text-sm text-gray-300 transition hover:bg-[#222] hover:text-[#D4AF37]" href="dashboard.php#inquiries">Inquiries</a>
+                        <a class="flex items-center gap-3 rounded px-4 py-3 text-sm text-gray-300 transition hover:bg-[#222] hover:text-[#D4AF37]" href="dashboard.php#tasks">Task Tracker</a>
+                        <a class="flex items-center gap-3 rounded px-4 py-3 text-sm text-gray-300 transition hover:bg-[#222] hover:text-[#D4AF37]" href="settings.php">Admin Profile</a>
+                        <a class="flex items-center gap-3 rounded px-4 py-3 text-sm text-gray-300 transition hover:bg-[#222] hover:text-[#D4AF37]" href="logout.php">Logout</a>
+                    </nav>
+                </div>
+                <div class="mt-6 hidden gap-1 border border-[#282828] bg-[#121212] p-4 lg:grid">
+                    <span class="text-[10px] text-gray-500">Signed in as</span>
+                    <strong class="break-words text-sm">
+                        <?php echo escaped((string) ($_SESSION['admin_user']['full_name'] ?? 'Admin')); ?>
+                    </strong>
+                    <small class="text-[10px] uppercase tracking-wider text-[#D4AF37]">
+                        <?php echo escaped((string) ($_SESSION['admin_user']['role'] ?? 'staff')); ?>
+                    </small>
+                </div>
+            </aside>
+            <div class="min-w-0 flex-1">
+                <header class="flex flex-col justify-between gap-5 border-b border-[#282828] bg-[#121212] px-6 py-6 md:flex-row md:items-center lg:px-10">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-[0.25em] text-[#D4AF37]">LEGATO OPERATIONS / OVERVIEW</p>
+                        <h1 class="mt-2 font-serif text-3xl font-bold">Admin Dashboard</h1>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <input class="w-full rounded border border-[#333] bg-[#181818] px-3 py-2 text-sm text-gray-200 outline-none placeholder:text-gray-600 focus:border-[#D4AF37] md:w-56" type="search" placeholder="Search inquiries">
+                        <span class="rounded border border-[#333] px-3 py-2 text-xs text-gray-400">Alerts <?php echo $kpis['pending']; ?>
+                        </span>
+                    </div>
+                </header>
+                <main class="space-y-8 px-6 py-8 lg:px-10">
+                    <?php if ($message): ?>
+                        <p class="text-center text-xs text-[#D4AF37]">
+                            <?php echo escaped($message); ?>
+                        </p>
+                    <?php endif; ?>
+                    <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+                        <div class="rounded-xl border border-[#282828] bg-[#181818] p-6">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Total Inquiries</span>
+                            <strong class="mt-4 block font-serif text-4xl text-[#F5F2EB]">
+                                <?php echo $kpis['total']; ?>
+                            </strong>
+                        </div>
+                        <div class="rounded-xl border border-[#282828] bg-[#181818] p-6">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Pending Review</span>
+                            <strong class="mt-4 block font-serif text-4xl text-[#D4AF37]">
+                                <?php echo $kpis['pending']; ?>
+                            </strong>
+                        </div>
+                        <div class="rounded-xl border border-[#282828] bg-[#181818] p-6">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Confirmed Events</span>
+                            <strong class="mt-4 block font-serif text-4xl text-green-400">
+                                <?php echo $kpis['confirmed']; ?>
+                            </strong>
+                        </div>
+                    </div>
+                    <section id="inquiries" class="space-y-5">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-[0.25em] text-[#D4AF37]">INQUIRY QUEUE</p>
+                            <h2 class="mt-2 font-serif text-3xl font-bold">Client bookings</h2>
+                        </div>
+                        <div class="space-y-6">
+                            <?php foreach ($inquiries as $inquiry): $services = json_decode((string) $inquiry['requested_services'], true) ?: []; ?>
+                                <article class="rounded-xl border border-[#282828] bg-[#181818] p-6 shadow-lg">
+                                    <div class="flex flex-col justify-between gap-4 border-b border-[#282828] pb-5 md:flex-row md:items-start">
+                                        <div class="min-w-0">
+                                            <span class="text-xs font-semibold uppercase tracking-wider text-[#D4AF37]">#<?php echo escaped((string) $inquiry['reference_no']); ?>
+                                            </span>
+                                            <h3 class="mt-2 break-words font-serif text-2xl font-bold">
+                                                <?php echo escaped((string) $inquiry['name']); ?>
+                                            </h3>
+                                            <p class="mt-1 break-words text-xs text-gray-400">
+                                                <?php echo escaped((string) $inquiry['email']); ?> · <?php echo escaped((string) $inquiry['phone']); ?>
+                                            </p>
+                                        </div>
+                                        <span class="shrink-0 rounded border px-3 py-1 text-[10px] font-bold uppercase tracking-wider <?php echo $inquiry['status'] === 'Confirmed' ? 'border-green-500 text-green-400' : ($inquiry['status'] === 'Completed' ? 'border-blue-500 text-blue-400' : ($inquiry['status'] === 'Cancelled' ? 'border-red-500 text-red-400' : 'border-[#D4AF37] text-[#D4AF37]')); ?>">
+                                            <?php echo escaped((string) $inquiry['status']); ?>
+                                        </span>
+                                    </div>
+                                    <div class="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+                                        <div class="flex flex-col gap-1">
+                                            <span class="text-xs font-semibold uppercase tracking-wider text-gray-400">Event Profile</span>
+                                            <strong class="text-sm font-medium text-[#F5F2EB]">
+                                                <?php echo escaped((string) $inquiry['event_type']); ?>
+                                            </strong>
+                                            <p class="text-xs leading-6 text-gray-400">
+                                                <?php echo (int) $inquiry['guest_count']; ?> guests · <?php echo escaped((string) $inquiry['target_event_date']); ?> at <?php echo escaped((string) $inquiry['event_start_time']); ?>
+                                            </p>
+                                        </div>
+                                        <div class="flex flex-col gap-1">
+                                            <span class="text-xs font-semibold uppercase tracking-wider text-gray-400">Logistics</span>
+                                            <strong class="text-sm font-medium text-[#F5F2EB]">
+                                                <?php echo escaped((string) $inquiry['venue']); ?>
+                                            </strong>
+                                            <p class="text-xs leading-6 text-gray-400">
+                                                <?php echo escaped((string) $inquiry['venue_type']); ?> · Setup <?php echo escaped((string) $inquiry['setup_access_time']); ?>
+                                            </p>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <span class="text-xs font-semibold uppercase tracking-wider text-gray-400">Selected Tiers</span>
+                                            <strong class="text-sm font-medium text-[#F5F2EB]">
+                                                <?php echo escaped((string) $inquiry['package_interest']); ?>
+                                            </strong>
+                                            <ul class="space-y-1 text-xs text-gray-400">
+                                                <?php foreach ($services as $service): ?>
+                                                    <li class="border-l-2 border-[#D4AF37] pl-2">
+                                                        <?php echo escaped((string) $service); ?>
+                                                    </li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <span class="text-xs font-semibold uppercase tracking-wider text-gray-400">Client Notes</span>
+                                            <p class="rounded border border-[#222] bg-[#121212] p-3 text-xs italic leading-6 text-gray-400">
+                                                <?php echo nl2br(escaped((string) ($inquiry['special_requests'] ?: $inquiry['message']))); ?>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <form class="mt-6 flex flex-col gap-3 border-t border-[#282828] pt-5 md:flex-row md:items-end" method="post" action="update_inquiry.php">
+                                        <input type="hidden" name="inquiry_id" value="<?php echo (int) $inquiry['id']; ?>">
+                                        <label class="flex min-w-0 flex-1 flex-col gap-1 text-xs font-semibold uppercase tracking-wider text-gray-400">Final investment<input class="w-full rounded border border-[#333] bg-[#121212] px-3 py-2 text-[#D4AF37] outline-none focus:border-[#D4AF37]" name="total_amount" type="number" min="0" step="0.01" value="<?php echo number_format((float) $inquiry['current_total'], 2, '.', ''); ?>">
+                                        </label>
+                                        <label class="flex min-w-0 flex-1 flex-col gap-1 text-xs font-semibold uppercase tracking-wider text-gray-400">Status<select class="w-full cursor-pointer rounded border border-[#333] bg-[#121212] px-3 py-2 text-gray-200 outline-none focus:border-[#D4AF37]" name="status">
+                                            <?php foreach ($statuses as $status): ?>
+                                                <option<?php echo $status === $inquiry['status'] ? ' selected' : ''; ?>>
+                                                <?php echo escaped($status); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </label>
+                                <button class="rounded bg-[#D4AF37] px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-black transition hover:bg-[#b8952d]" type="submit">Save Price / Update</button>
+                            </form>
+                        </article>
+                    <?php endforeach; ?>
+                </div>
+            </section>
+            <section id="tasks" class="space-y-5">
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-[0.25em] text-[#D4AF37]">PRODUCTION TASK TRACKER</p>
+                    <h2 class="mt-2 font-serif text-2xl font-bold">Team checklist</h2>
+                </div>
+                <form class="flex flex-col gap-3 rounded-lg border border-[#282828] bg-[#181818] p-4 md:flex-row md:items-center" method="post" action="add_task.php">
+                    <input type="hidden" name="action" value="add">
+                    <select class="grow rounded border border-[#333] bg-[#121212] p-2.5 text-sm text-gray-200 outline-none focus:border-[#D4AF37]" name="inquiry_id" required>
+                        <option value="">Select booking</option>
+                        <?php foreach ($inquiries as $inquiry): ?>
+                            <option value="<?php echo (int) $inquiry['id']; ?>">
+                            <?php echo escaped((string) $inquiry['name']); ?> - <?php echo escaped((string) $inquiry['reference_no']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <input class="grow rounded border border-[#333] bg-[#121212] p-2.5 text-sm text-gray-200 outline-none placeholder:text-gray-500 focus:border-[#D4AF37]" name="title" type="text" placeholder="Task name" required>
+                <select class="rounded border border-[#333] bg-[#121212] p-2.5 text-sm text-gray-200 outline-none focus:border-[#D4AF37]" name="assigned_admin_id">
+                    <option value="">Assign staff</option>
+                    <?php foreach ($admins as $staff): ?>
+                        <option value="<?php echo (int) $staff['id']; ?>">
+                        <?php echo escaped($staff['full_name']); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+            <input class="rounded border border-[#333] bg-[#121212] p-2.5 text-sm text-gray-200 outline-none focus:border-[#D4AF37]" name="due_date" type="date">
+            <button class="rounded bg-[#D4AF37] px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-black transition hover:bg-[#b8952d]" type="submit">Add Task</button>
+        </form>
+        <div class="overflow-hidden rounded-lg border border-[#282828] bg-[#181818]">
+            <?php foreach ($tasks as $task): ?>
+                <div class="flex flex-col gap-3 border-b border-[#282828] p-4 last:border-0 md:flex-row md:items-center">
+                    <form method="post" action="add_task.php">
+                        <input type="hidden" name="action" value="toggle">
+                        <input type="hidden" name="task_id" value="<?php echo (int) $task['id']; ?>">
+                        <label class="flex items-center gap-2 text-xs text-gray-400">
+                            <input class="h-4 w-4 accent-[#D4AF37]" type="checkbox" name="completed" value="1" onchange="this.form.submit()"<?php echo $task['status'] === 'Done' ? ' checked' : ''; ?>>Complete</label>
+                        </form>
+                        <div class="min-w-0 flex-1">
+                            <strong class="block break-words text-sm">
+                                <?php echo escaped((string) $task['title']); ?>
+                            </strong>
+                            <span class="block break-words text-xs text-gray-500">
+                                <?php echo escaped((string) $task['reference_no']); ?> · <?php echo escaped((string) ($task['full_name'] ?? 'Unassigned')); ?>
+                                <?php if ($task['due_date']): ?> · Due <?php echo escaped((string) $task['due_date']); ?>
+                                <?php endif; ?>
+                            </span>
+                        </div>
+                        <form method="post" action="add_task.php">
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="task_id" value="<?php echo (int) $task['id']; ?>">
+                            <button class="rounded border border-red-900 px-3 py-2 text-xs uppercase tracking-wider text-red-400 transition hover:border-red-400" type="submit">Delete</button>
+                        </form>
+                    </div>
+                <?php endforeach; ?>
+                <?php if (!$tasks): ?>
+                    <p class="p-6 text-sm text-gray-500">No production tasks yet.</p>
+                <?php endif; ?>
+            </div>
+        </section>
+    </main>
+</div>
+</div>
+</body>
+</html>

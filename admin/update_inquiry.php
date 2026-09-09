@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 session_start();
-if (!isset($_SESSION['admin_user']['id'])) { header('Location: login.php'); exit; }
+require_once __DIR__ . '/../includes/admin_guard.php';
 require_once __DIR__ . '/../db.php';
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') { header('Location: dashboard.php'); exit; }
 $inquiryId = filter_var($_POST['inquiry_id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);

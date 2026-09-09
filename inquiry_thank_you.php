@@ -2,11 +2,9 @@
 declare(strict_types=1);
 session_start();
 require_once __DIR__ . '/db.php';
-
 $referenceNo = trim((string) ($_GET['ref'] ?? ''));
 $user = $_SESSION['user'] ?? [];
 $inquiry = null;
-
 if ($referenceNo !== '') {
     try {
         $pdo = getDatabaseConnection();
@@ -22,49 +20,96 @@ if ($referenceNo !== '') {
         $inquiry = false;
     }
 }
-
 if (!$inquiry) {
     http_response_code(404);
     $inquiry = ['reference_no' => 'Unavailable', 'target_event_date' => null, 'event_start_time' => null, 'package_interest' => 'Unavailable', 'requested_services' => '[]', 'special_requests' => null, 'venue' => 'Unavailable', 'guest_count' => 0, 'status' => 'Pending Review', 'estimated_cost' => 0];
 }
-
 $services = json_decode((string) $inquiry['requested_services'], true) ?: [];
 function escaped(string $value): string { return htmlspecialchars($value, ENT_QUOTES, 'UTF-8'); }
 $pageTitle = 'Inquiry Received | LEGATO Events & Productions';
 require_once __DIR__ . '/includes/header.php';
 ?>
 <main>
-  <section class="page-hero thank-you-hero">
-    <div class="container">
-      <p class="section-label">LEGATO CLIENT PORTAL</p>
-      <h1>Your Inquiry Has Been <em>Received.</em></h1>
-      <p>Thank you for considering LEGATO Events &amp; Productions. Our team will review your requirements and send tailored availability and a custom proposal within 24 hours.</p>
+    <section class="page-hero thank-you-hero">
+        <div class="container">
+            <p class="section-label">LEGATO CLIENT PORTAL</p>
+            <h1>Your Inquiry Has Been <em>Received.</em>
+        </h1>
+        <p>Thank you for considering LEGATO Events &amp; Productions. Our team will review your requirements and send tailored availability and a custom proposal within 24 hours.</p>
     </div>
-  </section>
-  <section class="inner-section inquiry-confirmation">
+</section>
+<section class="inner-section inquiry-confirmation">
     <div class="container">
-      <div class="inquiry-summary">
-        <p class="section-label">INQUIRY SUMMARY</p>
-        <div class="summary-grid">
-            <div><span>Reference Number</span><strong>#<?php echo escaped((string) $inquiry['reference_no']); ?></strong></div>
-          <div><span>Event Date</span><strong><?php echo escaped($inquiry['target_event_date'] ?: 'Not provided'); ?></strong></div>
-          <div><span>Package / Services</span><strong><?php echo escaped((string) $inquiry['package_interest']); ?><?php if ($services): ?><small><?php echo escaped(implode(', ', $services)); ?></small><?php endif; ?></strong></div>
-          <div><span>Event Location</span><strong><?php echo escaped((string) $inquiry['venue']); ?></strong></div>
-          <div><span>Estimated Guests</span><strong><?php echo (int) $inquiry['guest_count']; ?></strong></div>
-          <div><span>Estimated Investment</span><strong>₱<?php echo number_format((float) $inquiry['estimated_cost'], 2); ?></strong></div>
+        <div class="inquiry-summary">
+            <p class="section-label">INQUIRY SUMMARY</p>
+            <div class="summary-grid">
+                <div>
+                    <span>Reference Number</span>
+                    <strong>#<?php echo escaped((string) $inquiry['reference_no']); ?>
+                    </strong>
+                </div>
+                <div>
+                    <span>Event Date</span>
+                    <strong>
+                        <?php echo escaped($inquiry['target_event_date'] ?: 'Not provided'); ?>
+                    </strong>
+                </div>
+                <div>
+                    <span>Package / Services</span>
+                    <strong>
+                        <?php echo escaped((string) $inquiry['package_interest']); ?>
+                        <?php if ($services): ?>
+                            <small>
+                                <?php echo escaped(implode(', ', $services)); ?>
+                            </small>
+                        <?php endif; ?>
+                    </strong>
+                </div>
+                <div>
+                    <span>Event Location</span>
+                    <strong>
+                        <?php echo escaped((string) $inquiry['venue']); ?>
+                    </strong>
+                </div>
+                <div>
+                    <span>Estimated Guests</span>
+                    <strong>
+                        <?php echo (int) $inquiry['guest_count']; ?>
+                    </strong>
+                </div>
+                <div>
+                    <span>Estimated Investment</span>
+                    <strong>₱<?php echo number_format((float) $inquiry['estimated_cost'], 2); ?>
+                    </strong>
+                </div>
+            </div>
         </div>
-      </div>
-      <div class="next-steps">
-        <p class="section-label">WHAT HAPPENS NEXT</p>
-        <div class="steps-grid">
-          <article><b>01</b><h2>Proposal Review</h2><p>Our production team verifies technical needs and venue logistics.</p></article>
-          <article><b>02</b><h2>Date Reservation</h2><p>We place a temporary 48-hour hold on your requested date.</p></article>
-          <article><b>03</b><h2>Consultation &amp; Deposit</h2><p>Review your tailored quote and confirm booking with an initial deposit.</p></article>
+        <div class="next-steps">
+            <p class="section-label">WHAT HAPPENS NEXT</p>
+            <div class="steps-grid">
+                <article>
+                    <b>01</b>
+                    <h2>Proposal Review</h2>
+                    <p>Our production team verifies technical needs and venue logistics.</p>
+                </article>
+                <article>
+                    <b>02</b>
+                    <h2>Date Reservation</h2>
+                    <p>We place a temporary 48-hour hold on your requested date.</p>
+                </article>
+                <article>
+                    <b>03</b>
+                    <h2>Consultation &amp; Deposit</h2>
+                    <p>Review your tailored quote and confirm booking with an initial deposit.</p>
+                </article>
+            </div>
         </div>
-      </div>
-      <div class="thank-you-actions"><a class="btn btn-gold" href="index.php">Return to Home</a><a class="btn btn-outline" href="profile.php">View My Dashboard / Inquiries</a></div>
-      <p class="urgent-contact">Need immediate assistance? Contact our event director directly at <a href="tel:+639000000000">+63 9XX XXX XXXX</a> or <a href="mailto:info@legatoevents.com">info@legatoevents.com</a>.</p>
+        <div class="thank-you-actions">
+            <a class="btn btn-gold" href="index.php">Return to Home</a>
+            <a class="btn btn-outline" href="profile.php">View My Dashboard / Inquiries</a>
+        </div>
+        <p class="urgent-contact">Need immediate assistance? Contact our event director directly at <a href="tel:+639000000000">+63 9XX XXX XXXX</a> or <a href="mailto:info@legatoevents.com">info@legatoevents.com</a>.</p>
     </div>
-  </section>
+</section>
 </main>
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
