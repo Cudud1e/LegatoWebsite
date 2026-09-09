@@ -1,9 +1,15 @@
 <?php
 declare(strict_types=1);
-session_start();
+require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/admin_guard.php';
+require_once __DIR__ . '/../includes/csrf.php';
 require_once __DIR__ . '/../db.php';
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') { header('Location: dashboard.php'); exit; }
+if (!verifyCsrfToken($_POST['csrf_token'] ?? null)) {
+    $_SESSION['admin_message'] = 'Your form session expired. Please try again.';
+    header('Location: dashboard.php');
+    exit;
+}
 $inquiryId = filter_var($_POST['inquiry_id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
 $totalAmount = filter_var($_POST['total_amount'] ?? null, FILTER_VALIDATE_FLOAT);
 $status = trim($_POST['status'] ?? '');
@@ -13,9 +19,13 @@ if (!$inquiryId || $totalAmount === false || $totalAmount < 0 || !in_array($stat
     header('Location: dashboard.php');
     exit;
 }
-$pdo = getDatabaseConnection();
-$statement = $pdo->prepare('UPDATE inquiries SET total_amount = ?, estimated_cost = ?, status = ? WHERE id = ?');
-$statement->execute([round((float) $totalAmount, 2), round((float) $totalAmount, 2), $status, $inquiryId]);
-$_SESSION['admin_message'] = 'Inquiry price and status updated.';
+try {
+    $pdo = getDatabaseConnection();
+    $statement = $pdo->prepare('UPDATE inquiries SET total_amount = ?, estimated_cost = ?, status = ? WHERE id = ?');
+    $statement->execute([round((float) $totalAmount, 2), round((float) $totalAmount, 2), $status, $inquiryId]);
+    $_SESSION['admin_message'] = $statement->rowCount() ? 'Inquiry price and status updated.' : 'The selected inquiry no longer exists.';
+} catch (PDOException $exception) {
+    $_SESSION['admin_message'] = 'The inquiry could not be updated. Please try again.';
+}
 header('Location: dashboard.php');
 exit;

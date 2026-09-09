@@ -1,7 +1,8 @@
 <?php
 declare(strict_types=1);
-session_start();
+require_once __DIR__ . '/includes/session.php';
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/includes/csrf.php';
 $sessionUser = $_SESSION['user'] ?? [];
 $message = '';
 $error = $_SESSION['inquiry_error'] ?? '';
@@ -119,7 +120,8 @@ function checked(string $value, array $values): string { return in_array($value,
                         </div>
                     </div>
                 </div>
-                <form class="contact-form" method="post" action="process_inquiry.php">
+                <form class="contact-form" action="process_inquiry.php" method="POST" id="inquiryForm">
+                    <input type="hidden" name="csrf_token" value="<?php echo escaped(csrfToken()); ?>">
                     <fieldset class="form-section">
                         <legend>
                             <span>01</span> Contact Information</legend>
@@ -233,7 +235,7 @@ function checked(string $value, array $values): string { return in_array($value,
 </textarea>
 </label>
 </fieldset>
-<button class="btn btn-gold form-submit" type="submit">Send Inquiry</button>
+<button type="submit" name="submit_inquiry" class="btn btn-gold form-submit">Send Inquiry</button>
 <p class="form-message" role="status">
     <?php echo escaped($error ?: $message); ?>
 </p>

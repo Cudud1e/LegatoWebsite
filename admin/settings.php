@@ -1,22 +1,26 @@
 <?php
 declare(strict_types=1);
-session_start();
+require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/admin_guard.php';
+require_once __DIR__ . '/../includes/csrf.php';
 require_once __DIR__ . '/../db.php';
 $pdo = getDatabaseConnection();
 $admin = $_SESSION['admin_user'];
 $message = '';
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!verifyCsrfToken($_POST['csrf_token'] ?? null)) {
+        $error = 'Your form session expired. Please try again.';
+    }
     $action = $_POST['action'] ?? '';
-    if ($action === 'password') {
+    if (!$error && $action === 'password') {
         $current = (string) ($_POST['current_password'] ?? '');
         $new = (string) ($_POST['new_password'] ?? '');
         $statement = $pdo->prepare('SELECT password_hash FROM admin_users WHERE id = ?'); $statement->execute([(int) $admin['id']]); $record = $statement->fetch();
         if (!$record || !password_verify($current, $record['password_hash']) || strlen($new) < 8) { $error = 'Verify the current password and use at least 8 characters for the new password.'; }
         else { $update = $pdo->prepare('UPDATE admin_users SET password_hash = ? WHERE id = ?'); $update->execute([password_hash($new, PASSWORD_DEFAULT), (int) $admin['id']]); $message = 'Your password was updated.'; }
     }
-    if ($action === 'team' && $admin['role'] === 'super_admin') {
+    if (!$error && $action === 'team' && $admin['role'] === 'super_admin') {
         $email = filter_var(trim($_POST['email'] ?? ''), FILTER_VALIDATE_EMAIL); $fullName = trim($_POST['full_name'] ?? ''); $role = trim($_POST['role'] ?? 'staff'); $password = (string) ($_POST['password'] ?? '');
         if (!$email || $fullName === '' || !in_array($role, ['super_admin', 'coordinator', 'staff'], true) || strlen($password) < 8) { $error = 'Complete the team member details and use a password with at least 8 characters.'; }
         else { try { $statement = $pdo->prepare('INSERT INTO admin_users (email, password_hash, full_name, role) VALUES (?, ?, ?, ?)'); $statement->execute([$email, password_hash($password, PASSWORD_DEFAULT), $fullName, $role]); $message = 'Team member created.'; } catch (PDOException $exception) { $error = 'That admin email is already in use.'; } }
@@ -40,7 +44,6 @@ function escaped(string $value): string { return htmlspecialchars($value, ENT_QU
         <header class="navbar">
             <div class="container nav-content">
                 <a class="brand" href="dashboard.php">
-                    <img src="../Assest/legato1.png" alt="LEGATO Operations" class="h-16 sm:h-20 lg:h-24 w-auto object-contain transition-transform duration-200 hover:scale-105">
             </a>
             <nav class="nav-links">
                 <a href="dashboard.php">Dashboard</a>
@@ -65,6 +68,7 @@ function escaped(string $value): string { return htmlspecialchars($value, ENT_QU
                 <h2>Change password</h2>
                 <form class="settings-form" method="post">
                     <input type="hidden" name="action" value="password">
+                    <input type="hidden" name="csrf_token" value="<?php echo escaped(csrfToken()); ?>">
                     <label>Current password<input name="current_password" type="password" required>
                     </label>
                     <label>New password<input name="new_password" type="password" minlength="8" required>
@@ -78,6 +82,7 @@ function escaped(string $value): string { return htmlspecialchars($value, ENT_QU
                     <h2>Invite team member</h2>
                     <form class="settings-form" method="post">
                         <input type="hidden" name="action" value="team">
+                        <input type="hidden" name="csrf_token" value="<?php echo escaped(csrfToken()); ?>">
                         <label>Full name<input name="full_name" required>
                         </label>
                         <label>Email<input name="email" type="email" required>

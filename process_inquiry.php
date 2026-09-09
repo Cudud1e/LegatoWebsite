@@ -1,25 +1,32 @@
 <?php
 declare(strict_types=1);
-session_start();
+require_once __DIR__ . '/includes/session.php';
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/includes/csrf.php';
+require_once __DIR__ . '/includes/validation.php';
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: contact.php');
     exit;
 }
+if (!verifyCsrfToken($_POST['csrf_token'] ?? null)) {
+    $_SESSION['inquiry_error'] = 'Your form session expired. Please try again.';
+    header('Location: contact.php');
+    exit;
+}
 $user = $_SESSION['user'] ?? [];
-$name = trim($_POST['name'] ?? ($user['full_name'] ?? ''));
+$name = trim($_POST['name'] ?? $_POST['full_name'] ?? ($user['full_name'] ?? ''));
 $email = filter_var(trim($_POST['email'] ?? ($user['email'] ?? '')), FILTER_VALIDATE_EMAIL);
 $phone = trim($_POST['phone'] ?? ($user['phone'] ?? ''));
 $eventType = trim($_POST['event_type'] ?? '');
-$eventDate = trim($_POST['target_event_date'] ?? '');
+$eventDate = trim($_POST['target_event_date'] ?? $_POST['event_date'] ?? '');
 $eventStartTime = trim($_POST['event_start_time'] ?? '');
 $setupAccessTime = trim($_POST['setup_access_time'] ?? '');
 $venue = trim($_POST['venue'] ?? '');
 $venueType = trim($_POST['venue_type'] ?? '');
 $guestCount = filter_var($_POST['guest_count'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
-$packageInterest = trim($_POST['package_interest'] ?? '');
+$packageInterest = trim($_POST['package_interest'] ?? $_POST['package_type'] ?? '');
 $budgetRange = trim($_POST['budget_range'] ?? '') ?: null;
-$inquiry = trim($_POST['message'] ?? '');
+$inquiry = trim($_POST['message'] ?? $_POST['notes'] ?? '');
 $specialRequests = trim($_POST['special_requests'] ?? '');
 $customSelectionJson = trim((string) ($_POST['custom_services'] ?? $_POST['services'] ?? ''));
 $services = array_values(array_filter($_POST['services'] ?? [], 'is_string'));
@@ -58,10 +65,9 @@ $serviceSummary = $services;
 foreach ($customSelection as $service => $tier) {
     $serviceSummary[] = $service . ' - ' . $tier;
 }
-$validDate = DateTime::createFromFormat('Y-m-d', $eventDate);
 $validStartTime = preg_match('/^([01]\\d|2[0-3]):[0-5]\\d$/', $eventStartTime) === 1;
 $validSetupTime = preg_match('/^([01]\\d|2[0-3]):[0-5]\\d$/', $setupAccessTime) === 1;
-if ($name === '' || !$email || $phone === '' || !in_array($eventType, $eventTypes, true) || !$validDate || $validDate->format('Y-m-d') !== $eventDate || !$validStartTime || !$validSetupTime || $venue === '' || !in_array($venueType, $venueTypes, true) || $guestCount === false || !in_array($packageInterest, $packages, true) || ($packageInterest === 'Custom Build' && $totalAmount <= 0) || ($budgetRange !== null && !in_array($budgetRange, $budgetRanges, true)) || $inquiry === '') {
+if ($name === '' || strlen($name) > 120 || !$email || !isValidPhoneNumber($phone) || !in_array($eventType, $eventTypes, true) || !isValidDateOnOrAfterToday($eventDate) || !$validStartTime || !$validSetupTime || $venue === '' || strlen($venue) > 255 || !in_array($venueType, $venueTypes, true) || $guestCount === false || $guestCount > 100000 || !in_array($packageInterest, $packages, true) || ($packageInterest === 'Custom Build' && $totalAmount <= 0) || ($budgetRange !== null && !in_array($budgetRange, $budgetRanges, true)) || $inquiry === '' || strlen($inquiry) > 5000 || strlen($specialRequests) > 5000) {
     $_SESSION['inquiry_error'] = 'Please complete all required booking details before sending your inquiry.';
     header('Location: contact.php');
     exit;
@@ -82,6 +88,7 @@ try {
     $inquiryId = (int) $pdo->lastInsertId();
     $_SESSION['last_inquiry_id'] = $inquiryId;
     $_SESSION['last_inquiry_reference'] = $referenceNo;
+    $_SESSION['inquiry_success'] = 'Your inquiry has been sent successfully!';
     sendAdminNotificationPlaceholder($inquiryId);
     sendClientReceiptPlaceholder((string) $email, $inquiryId);
     header('Location: inquiry_thank_you.php?ref=' . rawurlencode($referenceNo));

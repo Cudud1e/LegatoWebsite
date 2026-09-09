@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-session_start();
+require_once __DIR__ . '/includes/session.php';
 header('Content-Type: application/json; charset=utf-8');
 $user = $_SESSION['user'] ?? null;
 $userName = trim((string) ($user['full_name'] ?? $user['nickname'] ?? 'Client'));

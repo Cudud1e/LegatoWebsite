@@ -42,6 +42,5 @@ CREATE TABLE IF NOT EXISTS admin_tasks (
   CONSTRAINT fk_admin_tasks_admin FOREIGN KEY (assigned_admin_id) REFERENCES admin_users(id) ON DELETE SET NULL
 );
 
-INSERT INTO admin_users (email, password_hash, full_name, role)
-VALUES ('admin@legatoevents.com', '$2y$10$XJ5iaVPBCGrwaMabLtRDQ.Nl9JFyFeO2gI.lTSbngP28R3YejyUuK', 'LEGATO Super Admin', 'super_admin')
-ON DUPLICATE KEY UPDATE email = email;
+-- Create the first administrator using the local-only instructions in SETUP.md.
+-- Existing databases retain their administrator records; rotate any old sample password manually.

@@ -1,0 +1,17 @@
+.env
+.env.*
+!.env.example
+
+.vscode/
+.idea/
+*.log
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+vendor/
+node_modules/
+
+cache/
+tmp/

@@ -12,14 +12,14 @@
     <body class="inner-page">
         <header class="navbar">
             <div class="container nav-content">
-                <a href="index.html" class="brand">
+                    <a href="index.php" class="brand">
                     <img class="custom-logo h-16 sm:h-20 lg:h-24 w-auto object-contain transition-transform duration-200 hover:scale-105" src="Assest/legato1.png" alt="LEGATO Events & Productions" />
                 </a>
                 <nav class="nav-links" id="navLinks">
-                    <a href="index.html">Home</a>
-                    <a class="active" href="about.html">About Us</a>
-                    <a href="packages.html">VIP Packages</a>
-                    <a href="custom.html">Custom Services</a>
+                    <a href="index.php">Home</a>
+                    <a class="active" href="about.php">About Us</a>
+                    <a href="packages.php">VIP Packages</a>
+                    <a href="custom.php">Custom Services</a>
                     <a href="business_info.php">Policies &amp; Info</a>
                 </nav>
                 <div class="nav-actions">
@@ -77,7 +77,7 @@
     <footer id="contact">
         <div class="container footer-grid">
             <div>
-                <a href="index.html" class="brand">
+                    <a href="index.php" class="brand">
                     <img class="footer-custom-logo h-12 sm:h-14 w-auto object-contain transition-transform duration-200 hover:scale-105" src="Assest/legato1.png" alt="LEGATO Events & Productions" />
                 </a>
                 <p class="footer-tagline">Where flawless production meets unforgettable celebration.</p>
@@ -85,10 +85,10 @@
             <div>
                 <p class="footer-title">Explore</p>
                 <div class="footer-links">
-                    <a href="about.html">About Us</a>
-                    <a href="packages.html">VIP Packages</a>
-                    <a href="custom.html">Custom Services</a>
-                    <a href="login.html">Log In</a>
+                    <a href="about.php">About Us</a>
+                    <a href="packages.php">VIP Packages</a>
+                    <a href="custom.php">Custom Services</a>
+                    <a href="login.php">Log In</a>
                     <a href="terms.php">Terms &amp; Conditions</a>
                     <a href="privacy.php">Privacy Policy</a>
                     <a href="business_info.php">Business Info</a>

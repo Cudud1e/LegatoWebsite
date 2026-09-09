@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/includes/session.php';
 $sessionUser = $_SESSION['user'] ?? [];
 $isLoggedIn = isset($sessionUser['id']);
 $userEmail = htmlspecialchars((string) ($sessionUser['email'] ?? ''), ENT_QUOTES, 'UTF-8');
@@ -274,8 +274,8 @@ $userNickname = htmlspecialchars((string) ($sessionUser['nickname'] ?? ''), ENT_
             <div>
                 <p class="footer-title">Quick Links</p>
                 <div class="footer-links">
-                    <a href="custom.html">Services</a>
-                    <a href="packages.html">Pricing</a>
+                    <a href="custom.php">Services</a>
+                    <a href="packages.php">Pricing</a>
                     <a href="terms.php">Terms &amp; Conditions</a>
                     <a href="privacy.php">Privacy Policy</a>
                     <a href="business_info.php">Business Info</a>

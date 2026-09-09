@@ -12,19 +12,19 @@
     <body class="inner-page">
         <header class="navbar">
             <div class="container nav-content">
-                <a href="index.html" class="brand">
+                    <a href="index.php" class="brand">
                     <img class="custom-logo h-16 sm:h-20 lg:h-24 w-auto object-contain transition-transform duration-200 hover:scale-105" src="Assest/legato1.png" alt="LEGATO Events & Productions" />
                 </a>
                 <nav class="nav-links" id="navLinks">
-                    <a href="index.html">Home</a>
-                    <a href="about.html">About Us</a>
-                    <a class="active" href="packages.html">VIP Packages</a>
-                    <a href="custom.html">Custom Services</a>
+                    <a href="index.php">Home</a>
+                    <a href="about.php">About Us</a>
+                    <a class="active" href="packages.php">VIP Packages</a>
+                    <a href="custom.php">Custom Services</a>
                     <a href="business_info.php">Policies &amp; Info</a>
                 </nav>
                 <div class="nav-actions">
-                    <a href="custom.html" class="btn btn-gold nav-book">Book An Event</a>
-                    <a href="login.html" class="nav-login">Log In</a>
+                    <a href="booking.php" class="btn btn-gold nav-book">Book An Event</a>
+                    <a href="login.php" class="nav-login">Log In</a>
                     <button class="menu-button" id="menuButton" aria-label="Open menu">☰</button>
                 </div>
             </div>
@@ -54,7 +54,7 @@
                             <li>1 Professional Emcee</li>
                             <li>Sound Tech & Program Guidance</li>
                         </ul>
-                        <a href="custom.html" class="btn btn-outline package-button">Select VIP 1</a>
+                        <a href="booking.php?package=VIP1" class="btn btn-outline package-button">Select VIP 1</a>
                     </article>
                     <article class="package-card featured-package">
                         <span class="featured-label">MOST REQUESTED</span>
@@ -71,7 +71,7 @@
                             <li>Full Event Coordination & Timeline</li>
                             <li>Dedicated Vendor Liaison</li>
                         </ul>
-                        <a href="custom.html" class="btn btn-gold package-button">Select VIP 2</a>
+                        <a href="booking.php?package=VIP2" class="btn btn-gold package-button">Select VIP 2</a>
                     </article>
                     <article class="package-card">
                         <p class="package-name">VIP 3</p>
@@ -87,7 +87,7 @@
                             <li>Complete Creative Direction & On-Site Team</li>
                             <li>Photo/Video & VIP Concierge</li>
                         </ul>
-                        <a href="custom.html" class="btn btn-outline package-button">Select VIP 3</a>
+                        <a href="booking.php?package=VIP3" class="btn btn-outline package-button">Select VIP 3</a>
                     </article>
                 </div>
             </div>
@@ -96,7 +96,7 @@
     <footer>
         <div class="container footer-grid">
             <div>
-                <a href="index.html" class="brand">
+                <a href="index.php" class="brand">
                     <img class="footer-custom-logo h-12 sm:h-14 w-auto object-contain transition-transform duration-200 hover:scale-105" src="Assest/legato1.png" alt="LEGATO Events & Productions" />
                 </a>
                 <p class="footer-tagline">Where flawless production meets unforgettable celebration.</p>
@@ -104,10 +104,10 @@
             <div>
                 <p class="footer-title">Explore</p>
                 <div class="footer-links">
-                    <a href="about.html">About Us</a>
-                    <a href="packages.html">VIP Packages</a>
-                    <a href="custom.html">Custom Services</a>
-                    <a href="login.html">Log In</a>
+                    <a href="about.php">About Us</a>
+                    <a href="packages.php">VIP Packages</a>
+                    <a href="custom.php">Custom Services</a>
+                    <a href="login.php">Log In</a>
                     <a href="terms.php">Terms &amp; Conditions</a>
                     <a href="privacy.php">Privacy Policy</a>
                     <a href="business_info.php">Business Info</a>

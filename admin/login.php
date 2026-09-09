@@ -1,13 +1,15 @@
 <?php
 declare(strict_types=1);
-session_start();
+require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../db.php';
+require_once __DIR__ . '/../includes/csrf.php';
 if (isset($_SESSION['admin_user']['id'])) { header('Location: dashboard.php'); exit; }
 $error = '';
 $email = trim($_POST['email'] ?? '');
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = (string) ($_POST['password'] ?? '');
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL) || $password === '') { $error = 'Enter your admin email and password.'; }
+    if (!verifyCsrfToken($_POST['csrf_token'] ?? null)) { $error = 'Your form session expired. Please try again.'; }
+    elseif (!filter_var($email, FILTER_VALIDATE_EMAIL) || $password === '') { $error = 'Enter your admin email and password.'; }
     else { try { $pdo = getDatabaseConnection(); $statement = $pdo->prepare('SELECT id, email, password_hash, full_name, role FROM admin_users WHERE email = ? AND is_active = 1'); $statement->execute([$email]); $admin = $statement->fetch(); if (!$admin || !password_verify($password, $admin['password_hash'])) { $error = 'The admin email or password is incorrect.'; } else { session_regenerate_id(true); unset($_SESSION['user']); unset($admin['password_hash']); $_SESSION['admin_user'] = $admin; header('Location: dashboard.php'); exit; } } catch (PDOException $exception) { $error = 'Admin tables are not available. Run database_migration_system.sql first.'; } }
 }
 function escaped(string $value): string { return htmlspecialchars($value, ENT_QUOTES, 'UTF-8'); }
@@ -26,6 +28,7 @@ function escaped(string $value): string { return htmlspecialchars($value, ENT_QU
     <body class="inner-page">
         <main class="auth-section">
             <form class="auth-card" method="post">
+                <input type="hidden" name="csrf_token" value="<?php echo escaped(csrfToken()); ?>">
                 <p class="section-label">LEGATO OPERATIONS</p>
                 <h1>Admin Sign In.</h1>
                 <p>Access inquiries, production tasks, and team settings.</p>

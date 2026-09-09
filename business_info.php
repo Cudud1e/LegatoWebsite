@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/includes/session.php';
 $sessionUser = $_SESSION['user'] ?? [];
 $isLoggedIn = isset($sessionUser['id']);
 $userEmail = htmlspecialchars((string) ($sessionUser['email'] ?? ''), ENT_QUOTES, 'UTF-8');

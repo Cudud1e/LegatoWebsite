@@ -1,17 +1,25 @@
 <?php
 declare(strict_types=1);
-session_start();
-if (!isset($_SESSION['admin_user']['id'])) {
-    header('Location: login.php');
-    exit;
-}
+require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/admin_guard.php';
+require_once __DIR__ . '/../includes/csrf.php';
 require_once __DIR__ . '/../db.php';
 $pdo = getDatabaseConnection();
 $message = $_SESSION['admin_message'] ?? '';
 unset($_SESSION['admin_message']);
+$search = trim($_GET['q'] ?? '');
 $statuses = ['Pending Review', 'Confirmed', 'Completed', 'Cancelled'];
 $kpis = ['total' => (int) $pdo->query('SELECT COUNT(*) FROM inquiries')->fetchColumn(), 'pending' => (int) $pdo->query("SELECT COUNT(*) FROM inquiries WHERE status = 'Pending Review'")->fetchColumn(), 'confirmed' => (int) $pdo->query("SELECT COUNT(*) FROM inquiries WHERE status = 'Confirmed'")->fetchColumn()];
-$inquiries = $pdo->query('SELECT i.*, COALESCE(i.total_amount, i.estimated_cost, 0) AS current_total FROM inquiries i ORDER BY i.created_at DESC')->fetchAll();
+$inquirySql = 'SELECT i.*, COALESCE(i.total_amount, i.estimated_cost, 0) AS current_total FROM inquiries i';
+if ($search !== '') {
+    $inquirySql .= ' WHERE i.name LIKE :search OR i.email LIKE :search OR i.reference_no LIKE :search OR i.event_type LIKE :search OR i.target_event_date LIKE :search OR i.status LIKE :search';
+    $inquirySql .= ' ORDER BY i.created_at DESC';
+    $inquiryStatement = $pdo->prepare($inquirySql);
+    $inquiryStatement->execute(['search' => '%' . $search . '%']);
+    $inquiries = $inquiryStatement->fetchAll();
+} else {
+    $inquiries = $pdo->query($inquirySql . ' ORDER BY i.created_at DESC')->fetchAll();
+}
 $admins = $pdo->query('SELECT id, full_name FROM admin_users WHERE is_active = 1 ORDER BY full_name')->fetchAll();
 $tasks = $pdo->query('SELECT t.id, t.title, t.status, t.due_date, i.reference_no, a.full_name FROM admin_tasks t JOIN inquiries i ON i.id = t.inquiry_id LEFT JOIN admin_users a ON a.id = t.assigned_admin_id ORDER BY t.status = "Done", t.due_date IS NULL, t.due_date')->fetchAll();
 function escaped(string $value): string {
@@ -69,7 +77,11 @@ function statusClass(string $value): string {
                         <h1 class="mt-2 font-serif text-3xl font-bold">Admin Dashboard</h1>
                     </div>
                     <div class="flex items-center gap-3">
-                        <input class="w-full rounded border border-[#333] bg-[#181818] px-3 py-2 text-sm text-gray-200 outline-none placeholder:text-gray-600 focus:border-[#D4AF37] md:w-56" type="search" placeholder="Search inquiries">
+                        <form method="get" action="dashboard.php" class="flex items-center gap-2">
+                            <input class="w-full rounded border border-[#333] bg-[#181818] px-3 py-2 text-sm text-gray-200 outline-none placeholder:text-gray-600 focus:border-[#D4AF37] md:w-56" type="search" name="q" value="<?php echo escaped($search); ?>" placeholder="Search inquiries">
+                            <button class="rounded border border-[#D4AF37] px-3 py-2 text-xs text-[#D4AF37]" type="submit">Search</button>
+                            <?php if ($search !== ''): ?><a class="text-xs text-gray-400 underline" href="dashboard.php">Clear</a><?php endif; ?>
+                        </form>
                         <span class="rounded border border-[#333] px-3 py-2 text-xs text-gray-400">Alerts <?php echo $kpis['pending']; ?>
                         </span>
                     </div>
@@ -163,6 +175,7 @@ function statusClass(string $value): string {
                                         </div>
                                     </div>
                                     <form class="mt-6 flex flex-col gap-3 border-t border-[#282828] pt-5 md:flex-row md:items-end" method="post" action="update_inquiry.php">
+                                        <input type="hidden" name="csrf_token" value="<?php echo escaped(csrfToken()); ?>">
                                         <input type="hidden" name="inquiry_id" value="<?php echo (int) $inquiry['id']; ?>">
                                         <label class="flex min-w-0 flex-1 flex-col gap-1 text-xs font-semibold uppercase tracking-wider text-gray-400">Final investment<input class="w-full rounded border border-[#333] bg-[#121212] px-3 py-2 text-[#D4AF37] outline-none focus:border-[#D4AF37]" name="total_amount" type="number" min="0" step="0.01" value="<?php echo number_format((float) $inquiry['current_total'], 2, '.', ''); ?>">
                                         </label>
@@ -186,6 +199,7 @@ function statusClass(string $value): string {
                     <h2 class="mt-2 font-serif text-2xl font-bold">Team checklist</h2>
                 </div>
                 <form class="flex flex-col gap-3 rounded-lg border border-[#282828] bg-[#181818] p-4 md:flex-row md:items-center" method="post" action="add_task.php">
+                    <input type="hidden" name="csrf_token" value="<?php echo escaped(csrfToken()); ?>">
                     <input type="hidden" name="action" value="add">
                     <select class="grow rounded border border-[#333] bg-[#121212] p-2.5 text-sm text-gray-200 outline-none focus:border-[#D4AF37]" name="inquiry_id" required>
                         <option value="">Select booking</option>
@@ -211,6 +225,7 @@ function statusClass(string $value): string {
             <?php foreach ($tasks as $task): ?>
                 <div class="flex flex-col gap-3 border-b border-[#282828] p-4 last:border-0 md:flex-row md:items-center">
                     <form method="post" action="add_task.php">
+                        <input type="hidden" name="csrf_token" value="<?php echo escaped(csrfToken()); ?>">
                         <input type="hidden" name="action" value="toggle">
                         <input type="hidden" name="task_id" value="<?php echo (int) $task['id']; ?>">
                         <label class="flex items-center gap-2 text-xs text-gray-400">
@@ -227,6 +242,7 @@ function statusClass(string $value): string {
                             </span>
                         </div>
                         <form method="post" action="add_task.php">
+                            <input type="hidden" name="csrf_token" value="<?php echo escaped(csrfToken()); ?>">
                             <input type="hidden" name="action" value="delete">
                             <input type="hidden" name="task_id" value="<?php echo (int) $task['id']; ?>">
                             <button class="rounded border border-red-900 px-3 py-2 text-xs uppercase tracking-wider text-red-400 transition hover:border-red-400" type="submit">Delete</button>

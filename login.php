@@ -1,7 +1,8 @@
 <?php
 declare(strict_types=1);
-session_start();
+require_once __DIR__ . '/includes/session.php';
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/includes/csrf.php';
 $redirect = $_GET['redirect'] ?? $_POST['redirect'] ?? 'index.php';
 $redirectPath = parse_url($redirect, PHP_URL_PATH) ?: 'index.php';
 if (!in_array(basename($redirectPath), ['index.php', 'contact.php', 'custom.php', 'booking.php'], true)) {
@@ -23,9 +24,14 @@ $location = trim($_POST['location'] ?? '');
 $emailInput = trim($_POST['email'] ?? '');
 $loginMessage = trim($_GET['message'] ?? '');
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!verifyCsrfToken($_POST['csrf_token'] ?? null)) {
+        $error = 'Your form session expired. Please try again.';
+    }
     $email = filter_var($emailInput, FILTER_VALIDATE_EMAIL);
     $password = (string) ($_POST['password'] ?? '');
-    if (!$email || strlen($password) < 8) {
+    if ($error) {
+        // Keep the existing form error for an invalid or expired submission.
+    } elseif (!$email || strlen($password) < 8) {
         $error = 'Enter a valid email and a password with at least 8 characters.';
     } elseif ($createAccountMode && ($fullName === '' || $nickname === '' || $phone === '' || $location === '')) {
         $error = 'Please complete your full name, nickname, phone number, and location.';
@@ -146,6 +152,7 @@ function escaped(string $value): string
                     </p>
                 <?php endif; ?>
                 <form id="authForm" method="post" action="login.php">
+                    <input type="hidden" name="csrf_token" value="<?php echo escaped(csrfToken()); ?>">
                     <input type="hidden" name="mode" id="authMode" value="<?php echo $createAccountMode ? 'register' : 'login'; ?>">
                     <input type="hidden" name="redirect" value="<?php echo escaped($redirect); ?>">
                     <label class="registration-field" for="fullName"<?php echo $createAccountMode ? '' : ' hidden'; ?>>Full name<input id="fullName" name="full_name" type="text" value="<?php echo escaped($fullName); ?>" <?php echo $createAccountMode ? 'required' : ''; ?> />

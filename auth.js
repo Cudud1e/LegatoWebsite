@@ -15,6 +15,7 @@ if (authMode) {
 }
 
 function updateRegistrationFields() {
+  if (!confirmField || !authMode) return;
   confirmField.hidden = !createAccountMode;
   document.getElementById("confirmPassword").required = createAccountMode;
   registrationFields.forEach((field) => {
@@ -25,6 +26,7 @@ function updateRegistrationFields() {
 
 updateRegistrationFields();
 
+if (switchAuth && authForm && confirmField && authTitle && authDescription && authSubmit && switchPrompt && formMessage && authMode) {
 switchAuth.addEventListener("click", () => {
   createAccountMode = !createAccountMode;
   authMode.value = createAccountMode ? "register" : "login";
@@ -38,4 +40,5 @@ switchAuth.addEventListener("click", () => {
   switchAuth.textContent = createAccountMode ? "Log in" : "Create an account";
   formMessage.textContent = "";
 });
+}
 

@@ -83,5 +83,4 @@ CREATE TABLE admin_tasks (
 ALTER TABLE inquiries
   ADD CONSTRAINT fk_inquiries_admin FOREIGN KEY (assigned_admin_id) REFERENCES admin_users(id) ON DELETE SET NULL;
 
-INSERT INTO admin_users (email, password_hash, full_name, role)
-VALUES ('admin@legatoevents.com', '$2y$10$XJ5iaVPBCGrwaMabLtRDQ.Nl9JFyFeO2gI.lTSbngP28R3YejyUuK', 'LEGATO Super Admin', 'super_admin');
+-- Create the first admin account using the documented local setup steps in SETUP.md.
