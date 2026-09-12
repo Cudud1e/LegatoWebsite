@@ -55,11 +55,6 @@ $userNickname = htmlspecialchars((string) ($sessionUser['nickname'] ?? ''), ENT_
             <div class="hero-pattern">
             </div>
             <div class="container hero-content">
-                <?php if ($isLoggedIn): ?>
-                    <div class="welcome-panel">
-                        <?php echo $userNickname ?: $userEmail; ?>
-                    </div>
-                <?php endif; ?>
                 <span class="eyebrow-badge">Premium Event Production in Dumaguete City</span>
                 <h1>
           Redefining How Events Are
@@ -257,9 +252,9 @@ $userNickname = htmlspecialchars((string) ($sessionUser['nickname'] ?? ''), ENT_
             </div>
         </section>
     </main>
-    <footer id="contact">
-        <div class="container footer-grid">
-            <div>
+    <footer id="contact" class="site-footer">
+        <div class="footer-container">
+            <div class="footer-column footer-brand-section">
                 <a href="#" class="brand">
                     <img
             class="footer-custom-logo h-12 sm:h-14 w-auto object-contain transition-transform duration-200 hover:scale-105"
@@ -271,7 +266,7 @@ $userNickname = htmlspecialchars((string) ($sessionUser['nickname'] ?? ''), ENT_
           Where flawless production meets unforgettable celebration.
                 </p>
             </div>
-            <div>
+            <div class="footer-column">
                 <p class="footer-title">Quick Links</p>
                 <div class="footer-links">
                     <a href="custom.php">Services</a>
@@ -281,8 +276,8 @@ $userNickname = htmlspecialchars((string) ($sessionUser['nickname'] ?? ''), ENT_
                     <a href="business_info.php">Business Info</a>
                 </div>
             </div>
-            <div>
-                <p class="footer-title">Contact</p>
+            <div class="footer-column">
+                <p class="footer-title">Get In Touch</p>
                 <div class="footer-links">
                     <span>Dumaguete City, Philippines</span>
                     <a href="mailto:info@legatoevents.com">info@legatoevents.com</a>

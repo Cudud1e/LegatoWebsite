@@ -44,6 +44,7 @@ try {
     $inquiries = [];
 }
 $packagePrices = ['VIP 1: Elite Starter' => 49999, 'VIP 2: Prestige' => 79999, 'VIP 3: Grand Luxe' => 179999];
+$isLoggedIn = isset($_SESSION['user']['id']);
 function escaped(string $value): string { return htmlspecialchars($value, ENT_QUOTES, 'UTF-8'); }
 function money(float $value): string { return '₱' . number_format($value, 2); }
 function statusClass(string $value): string { return strtolower(str_replace(' ', '-', $value)); }
@@ -61,6 +62,28 @@ $pageTitle = 'My Account | LEGATO Events & Productions';
         <link rel="stylesheet" href="style.css">
     </head>
     <body class="inner-page">
+    <header class="navbar">
+        <div class="container nav-content">
+            <a href="index.php" class="brand">
+                <img class="custom-logo h-16 sm:h-20 lg:h-24 w-auto object-contain transition-transform duration-200 hover:scale-105" src="Assest/legato1.png" alt="LEGATO Events &amp; Productions" />
+            </a>
+            <nav class="nav-links" id="navLinks">
+                <a href="index.php">Home</a>
+                <a href="about.php">About Us</a>
+                <a href="packages.php">VIP Packages</a>
+                <a href="custom.php">Custom Services</a>
+                <a href="business_info.php">Policies &amp; Info</a>
+            </nav>
+            <div class="nav-actions">
+                <a href="booking.php" class="btn btn-gold nav-book">Book An Event</a>
+                <?php if ($isLoggedIn): ?>
+                <?php else: ?>
+                    <a href="login.php" class="nav-btn">Log In</a>
+                <?php endif; ?>
+                <button class="menu-button" id="menuButton" aria-label="Open menu">&#9776;</button>
+            </div>
+        </div>
+    </header>
     <main class="dashboard-page">
         <section class="page-hero dashboard-hero profile-header">
             <div class="container">
@@ -228,5 +251,46 @@ $pageTitle = 'My Account | LEGATO Events & Productions';
     </div>
 </section>
 </main>
+<footer id="contact" class="site-footer">
+    <div class="footer-container">
+        <div class="footer-column footer-brand-section">
+            <a href="index.php" class="footer-logo inline-block transition-transform duration-200 hover:scale-105">
+                <img class="footer-custom-logo h-12 sm:h-14 w-auto object-contain" src="Assest/legato1.png" alt="LEGATO Events &amp; Productions">
+            </a>
+            <p class="footer-tagline">Where flawless production meets unforgettable celebration.</p>
+        </div>
+        <div class="footer-column">
+            <p class="footer-title">Quick Links</p>
+            <div class="footer-links">
+                <a href="index.php">Home</a>
+                <a href="about.php">About Us</a>
+                <a href="packages.php">VIP Packages</a>
+                <a href="packages.php">Pricing</a>
+                <a href="custom.php">Custom Services</a>
+                <a href="custom.php">Services</a>
+                <a href="login.php">Log In</a>
+                <a href="terms.php">Terms &amp; Conditions</a>
+                <a href="privacy.php">Privacy Policy</a>
+                <a href="business_info.php">Business Info</a>
+            </div>
+        </div>
+        <div class="footer-column">
+            <p class="footer-title">Get In Touch</p>
+            <div class="footer-links">
+                <span>Dumaguete City, Negros Oriental, Philippines</span>
+                <a href="mailto:info@legatoevents.com">info@legatoevents.com</a>
+                <a href="tel:+639000000000">+63 9XX XXX XXXX</a>
+                <span>Monday to Saturday, 9:00 AM to 6:00 PM</span>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <div class="container">
+            <span>&copy; 2026 LEGATO Events &amp; Productions. All Rights Reserved.</span>
+            <span>Dumaguete &middot; Negros Oriental</span>
+        </div>
+    </div>
+</footer>
+<script src="script.js"></script>
 </body>
 </html>

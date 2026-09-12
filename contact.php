@@ -4,6 +4,7 @@ require_once __DIR__ . '/includes/session.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/includes/csrf.php';
 $sessionUser = $_SESSION['user'] ?? [];
+$isBookingPage = $isBookingPage ?? false;
 $message = '';
 $error = $_SESSION['inquiry_error'] ?? '';
 unset($_SESSION['inquiry_error']);
@@ -57,7 +58,7 @@ function checked(string $value, array $values): string { return in_array($value,
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Contact | LEGATO Events & Productions</title>
+        <title><?php echo $isBookingPage ? 'Book an Event' : 'Contact'; ?> | LEGATO Events &amp; Productions</title>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,600&display=swap" rel="stylesheet">
@@ -126,7 +127,7 @@ function checked(string $value, array $values): string { return in_array($value,
                         <legend>
                             <span>01</span> Contact Information</legend>
                             <div class="form-fields">
-                                <label for="name">Your name<input id="name" name="name" type="text" required value="<?php echo escaped($name); ?>">
+                                <label for="name">Your name<input id="name" name="full_name" type="text" required value="<?php echo escaped($name); ?>">
                                 </label>
                                 <label for="email">Email address<input id="email" name="email" type="email" required value="<?php echo escaped($emailInput); ?>">
                                 </label>
@@ -225,7 +226,7 @@ function checked(string $value, array $values): string { return in_array($value,
     <?php endforeach; ?>
 </div>
 </div>
-<label for="message">Tell us about your event<textarea id="message" name="message" rows="4" required>
+<label for="message">Tell us about your event<textarea id="message" name="notes" rows="4" required>
     <?php echo escaped($inquiry); ?>
 </textarea>
 </label>
@@ -243,16 +244,16 @@ function checked(string $value, array $values): string { return in_array($value,
 </div>
 </section>
 </main>
-<footer>
-    <div class="container footer-grid">
-        <div>
+<footer id="contact" class="site-footer">
+    <div class="footer-container">
+        <div class="footer-column footer-brand-section">
             <a href="index.php" class="brand">
                 <img class="footer-custom-logo h-12 sm:h-14 w-auto object-contain transition-transform duration-200 hover:scale-105" src="Assest/legato1.png" alt="LEGATO Events & Productions">
             </a>
             <p class="footer-tagline">Where flawless production meets unforgettable celebration.</p>
         </div>
-        <div>
-            <p class="footer-title">Explore</p>
+        <div class="footer-column">
+            <p class="footer-title">Quick Links</p>
             <div class="footer-links">
                 <a href="about.php">About Us</a>
                 <a href="packages.php">VIP Packages</a>
@@ -263,8 +264,8 @@ function checked(string $value, array $values): string { return in_array($value,
                 <a href="business_info.php">Business Info</a>
             </div>
         </div>
-        <div>
-            <p class="footer-title">Contact</p>
+        <div class="footer-column">
+            <p class="footer-title">Get In Touch</p>
             <div class="footer-links">
                 <span>Dumaguete City, Philippines</span>
                 <a href="mailto:info@legatoevents.com">info@legatoevents.com</a>

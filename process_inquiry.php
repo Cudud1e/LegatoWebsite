@@ -5,12 +5,12 @@ require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/includes/csrf.php';
 require_once __DIR__ . '/includes/validation.php';
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: contact.php');
+    header('Location: booking.php');
     exit;
 }
 if (!verifyCsrfToken($_POST['csrf_token'] ?? null)) {
     $_SESSION['inquiry_error'] = 'Your form session expired. Please try again.';
-    header('Location: contact.php');
+    header('Location: booking.php');
     exit;
 }
 $user = $_SESSION['user'] ?? [];
@@ -69,7 +69,7 @@ $validStartTime = preg_match('/^([01]\\d|2[0-3]):[0-5]\\d$/', $eventStartTime) =
 $validSetupTime = preg_match('/^([01]\\d|2[0-3]):[0-5]\\d$/', $setupAccessTime) === 1;
 if ($name === '' || strlen($name) > 120 || !$email || !isValidPhoneNumber($phone) || !in_array($eventType, $eventTypes, true) || !isValidDateOnOrAfterToday($eventDate) || !$validStartTime || !$validSetupTime || $venue === '' || strlen($venue) > 255 || !in_array($venueType, $venueTypes, true) || $guestCount === false || $guestCount > 100000 || !in_array($packageInterest, $packages, true) || ($packageInterest === 'Custom Build' && $totalAmount <= 0) || ($budgetRange !== null && !in_array($budgetRange, $budgetRanges, true)) || $inquiry === '' || strlen($inquiry) > 5000 || strlen($specialRequests) > 5000) {
     $_SESSION['inquiry_error'] = 'Please complete all required booking details before sending your inquiry.';
-    header('Location: contact.php');
+    header('Location: booking.php');
     exit;
 }
 try {
@@ -94,8 +94,9 @@ try {
     header('Location: inquiry_thank_you.php?ref=' . rawurlencode($referenceNo));
     exit;
 } catch (PDOException | JsonException $exception) {
+    error_log('Inquiry database error: ' . $exception->getMessage());
     $_SESSION['inquiry_error'] = 'We could not save your inquiry. Please check the database setup and try again.';
-    header('Location: contact.php');
+    header('Location: booking.php');
     exit;
 }
 function sendAdminNotificationPlaceholder(int $inquiryId): void

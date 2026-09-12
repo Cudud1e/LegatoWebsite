@@ -21,6 +21,18 @@ function escaped(string $value): string { return htmlspecialchars($value, ENT_QU
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+        <style>
+            #contact { background: #121212; border-top: 1px solid #282828; color: #F5F2EB; padding: 0 1.5rem; }
+            #contact .footer-grid { display: flex; max-width: 1200px; margin: 0 auto; padding: 40px 0; gap: 30px; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; }
+            #contact .footer-grid > div { flex: 1 1 220px; }
+            #contact .footer-custom-logo { display: block; height: 3.5rem; width: auto; object-fit: contain; }
+            #contact .footer-tagline { max-width: 280px; color: rgba(245, 242, 235, .55); font-size: 13px; line-height: 1.8; }
+            #contact .footer-title { margin: 0 0 12px; color: #D4AF37; font-size: .85rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; }
+            #contact .footer-links { display: flex; flex-direction: column; gap: 8px; color: rgba(245, 242, 235, .6); font-size: 13px; }
+            #contact .footer-links a:hover { color: #D4AF37; }
+            #contact .footer-bottom { max-width: 1200px; margin: 8px auto 0; border-top: 1px solid #262626; }
+            #contact .footer-bottom .container { display: flex; justify-content: center; gap: 20px; padding: 24px 0 0; color: rgba(245, 242, 235, .35); font-size: 10px; letter-spacing: .1em; text-align: center; }
+        </style>
     </head>
     <body class="min-h-screen bg-[#121212] font-sans text-[#F5F2EB]">
         <header class="border-b border-[#282828] bg-[#181818]">
@@ -87,6 +99,41 @@ function escaped(string $value): string { return htmlspecialchars($value, ENT_QU
         </div>
     </section>
 </main>
+<footer id="contact">
+    <div class="container footer-grid">
+        <div>
+            <a href="index.php" class="brand">
+                <img class="footer-custom-logo h-12 sm:h-14 w-auto object-contain transition-transform duration-200 hover:scale-105" src="Assest/legato1.png" alt="LEGATO Events &amp; Productions" />
+            </a>
+            <p class="footer-tagline">Where flawless production meets unforgettable celebration.</p>
+        </div>
+        <div>
+            <p class="footer-title">Quick Links</p>
+            <div class="footer-links">
+                <a href="custom.php">Services</a>
+                <a href="packages.php">Pricing</a>
+                <a href="business_info.php">Terms &amp; Conditions</a>
+                <a href="business_info.php">Privacy Policy</a>
+                <a href="business_info.php">Business Info</a>
+            </div>
+        </div>
+        <div>
+            <p class="footer-title">Contact</p>
+            <div class="footer-links">
+                <span>Dumaguete City, Philippines</span>
+                <a href="mailto:info@legatoevents.com">info@legatoevents.com</a>
+                <a href="tel:+639000000000">+63 9XX XXX XXXX</a>
+                <span>Monday to Saturday, 9:00 AM to 6:00 PM</span>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <div class="container">
+            <span>&copy; 2026 LEGATO Events &amp; Productions. All Rights Reserved.</span>
+            <span>Dumaguete &middot; Negros Oriental</span>
+        </div>
+    </div>
+</footer>
 <script>
 const cards=[...document.querySelectorAll('[data-service-card]')], estimate=document.getElementById('estimatedCost'), summary=document.getElementById('selectionSummary'), reserve=document.getElementById('reserveCustom');
 function updateBuilder(){const chosen=cards.filter(card=>card.querySelector('.service-enabled').checked), selections={}; let total=0; chosen.forEach(card=>{const input=card.querySelector('.service-enabled'), select=card.querySelector('.service-tier'), option=select.selectedOptions[0], price=Number(option.dataset.price); selections[input.dataset.service]=select.value; total+=price; card.classList.add('border-[#D4AF37]','bg-[#D4AF37]/10','shadow-[0_0_15px_rgba(212,175,55,0.15)]'); card.querySelector('.service-badge').textContent=`${select.value} (₱${price.toLocaleString('en-PH')})`; card.querySelector('.service-badge').classList.add('text-[#D4AF37]');}); cards.filter(card=>!card.querySelector('.service-enabled').checked).forEach(card=>{card.classList.remove('border-[#D4AF37]','bg-[#D4AF37]/10','shadow-[0_0_15px_rgba(212,175,55,0.15)]');card.querySelector('.service-badge').textContent='Not selected';card.querySelector('.service-badge').classList.remove('text-[#D4AF37]');}); estimate.textContent=`₱${total.toLocaleString('en-PH')}`; summary.innerHTML=chosen.length?chosen.map(card=>`<div class="flex justify-between gap-4 border-b border-[#282828] pb-2">

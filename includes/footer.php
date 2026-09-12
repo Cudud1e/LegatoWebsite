@@ -1,24 +1,28 @@
-<footer class="site-footer">
+<footer id="contact" class="site-footer">
     <div class="footer-container">
-        <div class="footer-column">
+        <div class="footer-column footer-brand-section">
             <a href="index.php" class="footer-logo inline-block transition-transform duration-200 hover:scale-105">
-                <img src="Assest/legato1.png" alt="LEGATO Events & Productions">
+                <img class="footer-custom-logo h-12 sm:h-14 w-auto object-contain" src="Assest/legato1.png" alt="LEGATO Events & Productions">
             </a>
             <p class="footer-tagline">Where flawless production meets unforgettable celebration.</p>
         </div>
         <div class="footer-column">
-            <p class="footer-title">Navigation Links</p>
+            <p class="footer-title">Quick Links</p>
             <div class="footer-links">
                 <a href="index.php">Home</a>
+                <a href="about.php">About Us</a>
                 <a href="packages.php">VIP Packages</a>
+                <a href="packages.php">Pricing</a>
                 <a href="custom.php">Custom Services</a>
-                <a href="terms.php">Terms &amp; Conditions</a>
+                <a href="custom.php">Services</a>
+                <a href="login.php">Log In</a>
+                <a href="business_info.php">Terms &amp; Conditions</a>
                 <a href="privacy.php">Privacy Policy</a>
                 <a href="business_info.php">Business Info</a>
             </div>
         </div>
         <div class="footer-column">
-            <p class="footer-title">Business Information</p>
+            <p class="footer-title">Get In Touch</p>
             <div class="footer-links">
                 <span>Dumaguete City, Negros Oriental, Philippines</span>
                 <a href="mailto:info@legatoevents.com">info@legatoevents.com</a>
@@ -27,9 +31,11 @@
             </div>
         </div>
     </div>
-    <div class="container footer-bottom">
-        <span>&copy; 2026 LEGATO Events &amp; Productions. All Rights Reserved.</span>
-        <span>Dumaguete &middot; Negros Oriental</span>
+    <div class="footer-bottom">
+        <div class="container">
+            <span>&copy; 2026 LEGATO Events &amp; Productions. All Rights Reserved.</span>
+            <span>Dumaguete &middot; Negros Oriental</span>
+        </div>
     </div>
 </footer>
 <script src="script.js">

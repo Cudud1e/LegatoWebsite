@@ -1229,17 +1229,55 @@ h2 {
 
 /* Footer */
 .site-footer {
-  background: #111;
+  background: #121212;
   color: #fff;
-  padding: 40px 20px;
+  padding: 0 20px;
+}
+
+.nav-btn {
+  color: var(--cream);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  transition: color 0.2s ease;
+}
+
+.nav-btn:hover,
+.nav-btn.active {
+  color: var(--gold);
+}
+
+/* Legacy page footers use the same three-column layout until they are moved to
+   includes/footer.php. */
+body > footer:not(.site-footer) {
+  background: #121212;
+  color: #fff;
+  padding: 0 20px;
+}
+
+body > footer:not(.site-footer) .footer-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 30px;
+  padding: 40px 0;
+}
+
+body > footer:not(.site-footer) .footer-grid > div {
+  flex: 1 1 220px;
 }
 
 .footer-container {
   max-width: 1200px;
   margin: 0 auto;
   display: flex;
-  flex-wrap: wrap;
   justify-content: space-between;
+  align-items: flex-start;
+  padding: 40px 0;
+  flex-wrap: wrap;
   gap: 30px;
 }
 
@@ -1249,7 +1287,7 @@ h2 {
 
 .footer-logo img {
   display: block;
-  max-height: 55px !important;
+  height: 3.5rem;
   width: auto !important;
   object-fit: contain;
 }
@@ -1262,17 +1300,18 @@ h2 {
 }
 
 .footer-title {
-  margin: 0 0 20px;
-  color: var(--gold);
-  font-size: 11px;
-  letter-spacing: 0.18em;
+  margin: 0 0 12px;
+  color: #D4AF37;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
 .footer-links {
   display: flex;
   flex-direction: column;
-  gap: 13px;
+  gap: 8px;
   color: rgba(245, 242, 235, 0.6);
   font-size: 13px;
 }
@@ -1283,19 +1322,19 @@ h2 {
 
 .footer-bottom {
   max-width: 1200px;
-  margin: 40px auto 0;
-  border-top: 1px solid rgba(212, 175, 55, 0.15);
+  margin: 8px auto 0;
+  border-top: 1px solid #262626;
 }
 
 .footer-bottom .container {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   gap: 20px;
-  padding: 22px 0;
+  padding: 24px 0 0;
   color: rgba(245, 242, 235, 0.35);
   font-size: 10px;
   letter-spacing: 0.1em;
-  text-transform: uppercase;
+  text-align: center;
 }
 
 @media (max-width: 992px) {
