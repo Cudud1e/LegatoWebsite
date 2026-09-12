@@ -46,7 +46,7 @@ function escaped(string $value): string { return htmlspecialchars($value, ENT_QU
                     <a class="text-[#D4AF37]" href="custom.php">Custom Services</a>
                     <a class="hover:text-[#D4AF37]" href="business_info.php">Policies &amp; Info</a>
                 </nav>
-                <a href="booking.php?package=Custom%20Build" class="rounded bg-[#D4AF37] px-4 py-2 text-xs font-bold uppercase tracking-wider text-black transition hover:bg-[#b8952d]">Book An Event</a>
+                <a href="booking.php" class="rounded bg-[#D4AF37] px-4 py-2 text-xs font-bold uppercase tracking-wider text-black transition hover:bg-[#b8952d]">Book An Event</a>
             </div>
         </header>
         <main>
