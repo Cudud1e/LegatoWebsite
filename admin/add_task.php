@@ -43,8 +43,15 @@ if ($action === 'add') {
     }
 } elseif ($action === 'toggle') {
     $taskId = filter_var($_POST['task_id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
-    $status = ($_POST['completed'] ?? '') === '1' ? 'Done' : 'Open';
+    $status = ($_POST['completed'] ?? '') === '1' ? 'Completed' : 'Open';
     if ($taskId) {
+        $statement = $pdo->prepare('UPDATE admin_tasks SET status = ? WHERE id = ?');
+        $statement->execute([$status, $taskId]);
+    }
+} elseif ($action === 'update_status') {
+    $taskId = filter_var($_POST['task_id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+    $status = $_POST['status'] ?? '';
+    if ($taskId && in_array($status, ['Open', 'In Progress', 'Completed'], true)) {
         $statement = $pdo->prepare('UPDATE admin_tasks SET status = ? WHERE id = ?');
         $statement->execute([$status, $taskId]);
     }

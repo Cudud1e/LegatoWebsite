@@ -2,11 +2,7 @@ const menuButton = document.getElementById("menuButton");
 const navLinks = document.getElementById("navLinks");
 const checkboxes = document.querySelectorAll(".service-item input");
 const estimatedCost = document.getElementById("estimatedCost");
-const inquiryForm = document.querySelector(".contact-form");
-
-if (inquiryForm) {
-  inquiryForm.action = "process_inquiry.php";
-}
+const inquiryForm = document.getElementById("bookingForm");
 
 async function syncAuthNavigation() {
   const navActions = document.querySelector(".nav-actions");

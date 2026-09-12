@@ -5,7 +5,10 @@ require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/includes/csrf.php';
 $sessionUser = $_SESSION['user'] ?? [];
 $isBookingPage = $isBookingPage ?? false;
-$message = '';
+$message = isset($_GET['status']) && $_GET['status'] === 'success'
+    ? (string) ($_SESSION['inquiry_success'] ?? 'Your inquiry has been sent successfully!')
+    : '';
+unset($_SESSION['inquiry_success']);
 $error = $_SESSION['inquiry_error'] ?? '';
 unset($_SESSION['inquiry_error']);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -29,6 +32,7 @@ if ($packageInterest === '' && isset($packageMap[$selectedPackage])) {
     $packageInterest = $packageMap[$selectedPackage];
 }
 $budgetRange = trim($_POST['budget_range'] ?? '');
+$paymentMethod = trim($_POST['payment_method'] ?? '');
 $inquiry = trim($_POST['message'] ?? '');
 $specialRequests = trim($_POST['special_requests'] ?? '');
 $customServices = trim((string) ($_POST['custom_services'] ?? $_POST['services'] ?? $_GET['custom_services'] ?? $_GET['services'] ?? ''));
@@ -49,6 +53,7 @@ $services = array_values(array_intersect(array_values(array_filter($_POST['servi
 $eventTypes = ['Wedding', 'Birthday/Debut', 'Corporate Event', 'School Gala', 'Private Party', 'Other'];
 $venueTypes = ['Indoor Ballroom / Hotel', 'Outdoor Garden', 'Outdoor Beach', 'Private Residence'];
 $packages = ['VIP 1: Elite Starter', 'VIP 2: Prestige', 'VIP 3: Grand Luxe', 'Custom Build', 'Unsure / Need Guidance'];
+$paymentMethods = ['Online Payment', 'In Person'];
 function escaped(string $value): string { return htmlspecialchars($value, ENT_QUOTES, 'UTF-8'); }
 function selected(string $actual, string $expected): string { return $actual === $expected ? ' selected' : ''; }
 function checked(string $value, array $values): string { return in_array($value, $values, true) ? ' checked' : ''; }
@@ -121,7 +126,7 @@ function checked(string $value, array $values): string { return in_array($value,
                         </div>
                     </div>
                 </div>
-                <form class="contact-form" action="process_inquiry.php" method="POST" id="inquiryForm">
+                <form id="bookingForm" action="process_inquiry.php" method="POST" class="contact-form">
                     <input type="hidden" name="csrf_token" value="<?php echo escaped(csrfToken()); ?>">
                     <fieldset class="form-section">
                         <legend>
@@ -148,7 +153,7 @@ function checked(string $value, array $values): string { return in_array($value,
                                     <?php endforeach; ?>
                                 </select>
                             </label>
-                            <label for="eventDate">Target event date<input id="eventDate" name="target_event_date" type="date" min="<?php echo date('Y-m-d'); ?>" required value="<?php echo escaped($eventDate); ?>">
+                            <label for="eventDate">Target event date<input id="eventDate" name="event_date" type="date" min="<?php echo date('Y-m-d'); ?>" required value="<?php echo escaped($eventDate); ?>">
                             </label>
                             <label for="eventStartTime">Preferred event start time<input id="eventStartTime" name="event_start_time" type="time" required value="<?php echo escaped($eventStartTime); ?>">
                             </label>
@@ -173,7 +178,7 @@ function checked(string $value, array $values): string { return in_array($value,
                 <legend>
                     <span>03</span> Package &amp; Production Preferences</legend>
                     <div class="form-fields">
-                        <label for="packageInterest">Package interest<select id="packageInterest" name="package_interest" required>
+                        <label for="packageInterest">Package interest<select id="packageInterest" name="package_type" required>
                             <option value="">Select a starting preference</option>
                             <?php foreach ($packages as $option): ?>
                                 <option value="<?php echo escaped($option); ?>"<?php echo selected($packageInterest, $option); ?>>
@@ -190,6 +195,15 @@ function checked(string $value, array $values): string { return in_array($value,
                     <option value="₱100k+"<?php echo selected($budgetRange, '₱100k+'); ?>>₱100k+</option>
                 </select>
             </label>
+        </div>
+        <div class="form-group mb-6">
+            <label for="payment_method" class="form-label text-[#D4AF37] font-semibold text-sm uppercase tracking-wider block mb-2">Preferred Down Payment Method</label>
+            <select name="payment_method" id="payment_method" class="form-control w-full bg-[#1A1A1A] border border-neutral-700 text-[#F5F2EB] p-3 rounded-md focus:border-[#D4AF37] focus:outline-none" required>
+                <option value="" disabled<?php echo $paymentMethod === '' ? ' selected' : ''; ?>>Select how you prefer to settle the 50% down payment</option>
+                <option value="Online Payment"<?php echo selected($paymentMethod, 'Online Payment'); ?>>Online Payment (GCash / Maya / Bank Transfer)</option>
+                <option value="In Person"<?php echo selected($paymentMethod, 'In Person'); ?>>Cash / In-Person (Main Office – Dumaguete City)</option>
+            </select>
+            <small class="text-neutral-400 text-xs mt-1 block">Note: A 50% down payment is required upon review and approval to confirm your event reservation.</small>
         </div>
         <input type="hidden" name="custom_services" value="<?php echo escaped($customServices); ?>">
         <div class="booking-estimate">Estimated investment: <strong>₱<?php echo number_format($customDisplayedTotal, 2); ?>
@@ -236,7 +250,7 @@ function checked(string $value, array $values): string { return in_array($value,
 </textarea>
 </label>
 </fieldset>
-<button type="submit" name="submit_inquiry" class="btn btn-gold form-submit">Send Inquiry</button>
+<button type="submit" id="submitBtn" name="submit_inquiry" class="btn btn-gold">Send Inquiry</button>
 <p class="form-message" role="status">
     <?php echo escaped($error ?: $message); ?>
 </p>
@@ -267,9 +281,9 @@ function checked(string $value, array $values): string { return in_array($value,
         <div class="footer-column">
             <p class="footer-title">Get In Touch</p>
             <div class="footer-links">
-                <span>Dumaguete City, Philippines</span>
+                <span>Dumaguete City, Philippines 6200</span>
                 <a href="mailto:info@legatoevents.com">info@legatoevents.com</a>
-                <a href="tel:+639000000000">+63 9XX XXX XXXX</a>
+                <a href="tel:+639000000000">+63 917 123 4567</a>
                 <span>Monday to Saturday, 9:00 AM to 6:00 PM</span>
             </div>
         </div>

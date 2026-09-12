@@ -46,7 +46,7 @@ function escaped(string $value): string { return htmlspecialchars($value, ENT_QU
                     <a class="text-[#D4AF37]" href="custom.php">Custom Services</a>
                     <a class="hover:text-[#D4AF37]" href="business_info.php">Policies &amp; Info</a>
                 </nav>
-                <a href="contact.php?package=Custom%20Build" class="rounded bg-[#D4AF37] px-4 py-2 text-xs font-bold uppercase tracking-wider text-black transition hover:bg-[#b8952d]">Book An Event</a>
+                <a href="booking.php?package=Custom%20Build" class="rounded bg-[#D4AF37] px-4 py-2 text-xs font-bold uppercase tracking-wider text-black transition hover:bg-[#b8952d]">Book An Event</a>
             </div>
         </header>
         <main>
@@ -118,11 +118,11 @@ function escaped(string $value): string { return htmlspecialchars($value, ENT_QU
             </div>
         </div>
         <div>
-            <p class="footer-title">Contact</p>
+            <p class="footer-title">Get In Touch</p>
             <div class="footer-links">
-                <span>Dumaguete City, Philippines</span>
+                <span>Dumaguete City, Philippines 6200</span>
                 <a href="mailto:info@legatoevents.com">info@legatoevents.com</a>
-                <a href="tel:+639000000000">+63 9XX XXX XXXX</a>
+                <a href="tel:+639000000000">+63 917 123 4567</a>
                 <span>Monday to Saturday, 9:00 AM to 6:00 PM</span>
             </div>
         </div>
@@ -139,7 +139,7 @@ const cards=[...document.querySelectorAll('[data-service-card]')], estimate=docu
 function updateBuilder(){const chosen=cards.filter(card=>card.querySelector('.service-enabled').checked), selections={}; let total=0; chosen.forEach(card=>{const input=card.querySelector('.service-enabled'), select=card.querySelector('.service-tier'), option=select.selectedOptions[0], price=Number(option.dataset.price); selections[input.dataset.service]=select.value; total+=price; card.classList.add('border-[#D4AF37]','bg-[#D4AF37]/10','shadow-[0_0_15px_rgba(212,175,55,0.15)]'); card.querySelector('.service-badge').textContent=`${select.value} (₱${price.toLocaleString('en-PH')})`; card.querySelector('.service-badge').classList.add('text-[#D4AF37]');}); cards.filter(card=>!card.querySelector('.service-enabled').checked).forEach(card=>{card.classList.remove('border-[#D4AF37]','bg-[#D4AF37]/10','shadow-[0_0_15px_rgba(212,175,55,0.15)]');card.querySelector('.service-badge').textContent='Not selected';card.querySelector('.service-badge').classList.remove('text-[#D4AF37]');}); estimate.textContent=`₱${total.toLocaleString('en-PH')}`; summary.innerHTML=chosen.length?chosen.map(card=>`<div class="flex justify-between gap-4 border-b border-[#282828] pb-2">
     <span>${card.querySelector('.service-enabled').dataset.service}</span>
     <strong class="text-[#F5F2EB]">${card.querySelector('.service-tier').value}</strong>
-</div>`).join(''):'Select at least one service.'; reserve.classList.toggle('opacity-40',!total);reserve.classList.toggle('cursor-not-allowed',!total);reserve.setAttribute('aria-disabled',total?'false':'true');reserve.href=total?`contact.php?package=Custom%20Build&services=${encodeURIComponent(JSON.stringify(selections))}&total=${total}`:'#';}
+</div>`).join(''):'Select at least one service.'; reserve.classList.toggle('opacity-40',!total);reserve.classList.toggle('cursor-not-allowed',!total);reserve.setAttribute('aria-disabled',total?'false':'true');reserve.href=total?`booking.php?package=Custom%20Build&services=${encodeURIComponent(JSON.stringify(selections))}&total=${total}`:'#';}
 cards.forEach(card=>{const check=card.querySelector('.service-enabled'),select=card.querySelector('.service-tier');check.addEventListener('change',()=>{select.disabled=!check.checked;updateBuilder();});select.addEventListener('change',updateBuilder);});reserve.addEventListener('click',event=>{if(reserve.getAttribute('aria-disabled')==='true')event.preventDefault();});
 updateBuilder();
 </script>

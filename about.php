@@ -8,6 +8,8 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,600&display=swap" rel="stylesheet" />
         <link rel="stylesheet" href="style.css" />
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>tailwind.config={theme:{extend:{colors:{obsidian:'#121212',charcoal:'#181818',line:'#282828',gold:'#D4AF37',ivory:'#F5F2EB'},fontFamily:{serif:['Playfair Display','serif'],sans:['Montserrat','sans-serif']}}}}</script>
         <style>
             /* --- FOOTER GRID FIX --- */
             #contact { background-color: #121212; color: #F5F2EB; padding-top: 3rem; padding-bottom: 1.5rem; border-top: 1px solid #262626; margin-top: 4rem; }
@@ -86,6 +88,39 @@
                 </div>
             </div>
         </section>
+        <section class="border-y border-[#282828] bg-[#121212] py-20 sm:py-24" aria-labelledby="event-highlights-title">
+            <div class="mx-auto w-full max-w-[1200px] px-5 sm:px-8">
+                <div class="max-w-2xl">
+                    <p class="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-[#D4AF37]">EVENT HIGHLIGHTS</p>
+                    <h2 id="event-highlights-title" class="mt-3 font-serif text-4xl leading-tight text-[#F5F2EB] sm:text-5xl">The moments behind the <em>magic.</em></h2>
+                    <p class="mt-5 text-sm leading-7 text-[#9CA3AF] sm:text-base">A glimpse into the calm preparation, technical precision, and human energy that shape every LEGATO celebration.</p>
+                </div>
+
+                <div class="mt-10 grid grid-cols-1 gap-5 lg:grid-cols-2">
+                    <button type="button" class="gallery-trigger group relative min-h-[420px] overflow-hidden rounded-2xl border border-[#D4AF37]/20 bg-[#181818] text-left shadow-2xl transition-all duration-300 hover:scale-[1.02] hover:border-[#D4AF37]/60 focus:outline-none focus:ring-2 focus:ring-[#D4AF37]" data-gallery-src="Assest/pic1.jpg" data-gallery-alt="LEGATO event showcase and main stage" data-gallery-title="The Main Stage" data-gallery-caption="Immersive lighting, confident sound, and every cue placed exactly where it belongs.">
+                        <img src="Assest/pic1.jpg" alt="LEGATO event showcase and main stage" class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy">
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#121212] via-[#121212]/25 to-transparent"></div>
+                        <span class="absolute left-5 top-5 rounded-full border border-[#D4AF37]/30 bg-[#121212]/70 px-3 py-1.5 font-mono text-[10px] font-semibold tracking-[0.15em] text-[#D4AF37] backdrop-blur-md">LIVE EVENT</span>
+                        <div class="absolute inset-x-0 bottom-0 p-6 sm:p-8"><span class="rounded border border-[#282828] bg-[#121212]/75 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-[#9CA3AF] backdrop-blur">Dumaguete City · Production</span><h3 class="mt-4 font-serif text-3xl text-[#F5F2EB]">The Main Stage</h3><p class="mt-2 max-w-lg text-sm leading-6 text-[#F5F2EB]/80">Immersive lighting, confident sound, and every cue placed exactly where it belongs.</p></div>
+                    </button>
+
+                    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-1">
+                        <button type="button" class="gallery-trigger group relative min-h-[260px] overflow-hidden rounded-2xl border border-[#D4AF37]/20 bg-[#181818] text-left transition-all duration-300 hover:scale-[1.02] hover:border-[#D4AF37]/60 focus:outline-none focus:ring-2 focus:ring-[#D4AF37]" data-gallery-src="Assest/pic2pg.jpg" data-gallery-alt="Guests enjoying a LEGATO celebration" data-gallery-title="A Room Full of Energy" data-gallery-caption="From the first welcome to the final applause, we shape a flow guests can feel.">
+                            <img src="Assest/pic2pg.jpg" alt="Guests enjoying a LEGATO celebration" class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy">
+                            <div class="absolute inset-0 bg-gradient-to-t from-[#121212] via-[#121212]/20 to-transparent"></div>
+                            <span class="absolute left-5 top-5 rounded-full border border-[#D4AF37]/30 bg-[#121212]/70 px-3 py-1.5 font-mono text-[10px] font-semibold tracking-[0.15em] text-[#D4AF37] backdrop-blur-md">GRAND CELEBRATION</span>
+                            <div class="absolute inset-x-0 bottom-0 p-6"><span class="font-mono text-[10px] uppercase tracking-wider text-[#9CA3AF]">Guest Experience · Celebration</span><h3 class="mt-2 font-serif text-2xl text-[#F5F2EB]">A Room Full of Energy</h3><p class="mt-1 text-sm leading-6 text-[#F5F2EB]/80">A program built around connection, movement, and memorable atmosphere.</p></div>
+                        </button>
+                        <button type="button" class="gallery-trigger group relative min-h-[260px] overflow-hidden rounded-2xl border border-[#D4AF37]/20 bg-[#181818] text-left transition-all duration-300 hover:scale-[1.02] hover:border-[#D4AF37]/60 focus:outline-none focus:ring-2 focus:ring-[#D4AF37]" data-gallery-src="Assest/pic3.jpg" data-gallery-alt="Behind the scenes at a LEGATO event" data-gallery-title="The Work Before the Applause" data-gallery-caption="Experienced hands, thoughtful planning, and a team that stays focused on the details.">
+                            <img src="Assest/pic3.jpg" alt="Behind the scenes at a LEGATO event" class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy">
+                            <div class="absolute inset-0 bg-gradient-to-t from-[#121212] via-[#121212]/20 to-transparent"></div>
+                            <span class="absolute left-5 top-5 rounded-full border border-[#D4AF37]/30 bg-[#121212]/70 px-3 py-1.5 font-mono text-[10px] font-semibold tracking-[0.15em] text-[#D4AF37] backdrop-blur-md">BEHIND THE SCENES</span>
+                            <div class="absolute inset-x-0 bottom-0 p-6"><span class="font-mono text-[10px] uppercase tracking-wider text-[#9CA3AF]">Crew Focus · Execution</span><h3 class="mt-2 font-serif text-2xl text-[#F5F2EB]">The Work Before the Applause</h3><p class="mt-1 text-sm leading-6 text-[#F5F2EB]/80">The production discipline that lets hosts and guests stay present.</p></div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
     <footer id="contact">
     <div class="container footer-grid">
@@ -112,11 +147,11 @@
             </div>
         </div>
         <div>
-            <p class="footer-title">Contact</p>
+            <p class="footer-title">Get In Touch</p>
             <div class="footer-links">
-                <span>Dumaguete City, Philippines</span>
+                <span>Dumaguete City, Negros Oriental, Philippines 6200</span>
                 <a href="mailto:info@legatoevents.com">info@legatoevents.com</a>
-                <a href="tel:+639000000000">+63 9XX XXX XXXX</a>
+                <a href="tel:+639000000000">+63 917 123 4567</a>
                 <span>Monday to Saturday, 9:00 AM to 6:00 PM</span>
             </div>
         </div>
@@ -129,6 +164,32 @@
     </div>
 </footer>
     <script src="script.js">
+    </script>
+    <div id="galleryLightbox" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/90 p-4 opacity-0 backdrop-blur-md transition-opacity duration-300" role="dialog" aria-modal="true" aria-labelledby="galleryLightboxTitle">
+        <button type="button" id="galleryClose" class="absolute right-5 top-5 z-10 rounded-full border border-[#D4AF37]/40 bg-[#121212]/80 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-[#D4AF37] transition hover:bg-[#D4AF37] hover:text-[#121212]" aria-label="Close image preview">Close ×</button>
+        <div class="relative max-h-full w-full max-w-6xl overflow-hidden rounded-2xl border border-[#D4AF37]/30 bg-[#181818] shadow-2xl">
+            <img id="galleryLightboxImage" src="" alt="" class="max-h-[72vh] w-full bg-[#121212] object-contain">
+            <div class="border-t border-[#282828] px-6 py-5 sm:px-8"><p id="galleryLightboxMeta" class="font-mono text-[10px] uppercase tracking-[0.18em] text-[#D4AF37]">LEGATO EVENT HIGHLIGHT</p><h2 id="galleryLightboxTitle" class="mt-2 font-serif text-3xl text-[#F5F2EB]"></h2><p id="galleryLightboxCaption" class="mt-2 text-sm leading-6 text-[#9CA3AF]"></p></div>
+        </div>
+    </div>
+    <script>
+        (() => {
+            const lightbox = document.getElementById('galleryLightbox');
+            const image = document.getElementById('galleryLightboxImage');
+            const title = document.getElementById('galleryLightboxTitle');
+            const caption = document.getElementById('galleryLightboxCaption');
+            const closeButton = document.getElementById('galleryClose');
+            let lastTrigger = null;
+            const close = () => { lightbox.classList.remove('opacity-100'); setTimeout(() => lightbox.classList.add('hidden'), 300); lastTrigger?.focus(); };
+            document.querySelectorAll('.gallery-trigger').forEach((trigger) => trigger.addEventListener('click', () => {
+                lastTrigger = trigger; image.src = trigger.dataset.gallerySrc; image.alt = trigger.dataset.galleryAlt;
+                title.textContent = trigger.dataset.galleryTitle; caption.textContent = trigger.dataset.galleryCaption;
+                lightbox.classList.remove('hidden'); requestAnimationFrame(() => lightbox.classList.add('opacity-100')); closeButton.focus();
+            }));
+            closeButton.addEventListener('click', close);
+            lightbox.addEventListener('click', (event) => { if (event.target === lightbox) close(); });
+            document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && !lightbox.classList.contains('hidden')) close(); });
+        })();
     </script>
 </body>
 </html>

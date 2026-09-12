@@ -35,7 +35,7 @@ try {
     $accountStatement->execute([$userId]);
     $account = $accountStatement->fetch();
     if (!$account) { header('Location: logout.php'); exit; }
-    $history = $pdo->prepare('SELECT reference_no, event_type, target_event_date, event_start_time, venue, venue_type, guest_count, package_interest, budget_range, requested_services, special_requests, message, status, COALESCE(total_amount, estimated_cost, 0) AS estimated_cost, created_at FROM inquiries WHERE user_id = ? ORDER BY created_at DESC');
+    $history = $pdo->prepare('SELECT reference_no, event_type, target_event_date, event_start_time, venue, venue_type, guest_count, package_interest, budget_range, requested_services, special_requests, message, status, payment_reference, receipt_path, COALESCE(total_amount, estimated_cost, 0) AS estimated_cost, created_at FROM inquiries WHERE user_id = ? ORDER BY created_at DESC');
     $history->execute([$userId]);
     $inquiries = $history->fetchAll();
 } catch (PDOException $exception) {
@@ -243,6 +243,9 @@ $pageTitle = 'My Account | LEGATO Events & Productions';
                                     </strong>
                                 </span>
                             </div>
+                            <?php if (!empty($inquiry['receipt_path'])): ?>
+                                <p class="receipt-actions"><a class="btn btn-outline" href="<?php echo escaped((string) $inquiry['receipt_path']); ?>" target="_blank" rel="noopener">View Uploaded Receipt</a></p>
+                            <?php endif; ?>
                         </div>
                     </details>
                 </article>
@@ -277,9 +280,9 @@ $pageTitle = 'My Account | LEGATO Events & Productions';
         <div class="footer-column">
             <p class="footer-title">Get In Touch</p>
             <div class="footer-links">
-                <span>Dumaguete City, Negros Oriental, Philippines</span>
+                <span>Dumaguete City, Negros Oriental, Philippines 6200</span>
                 <a href="mailto:info@legatoevents.com">info@legatoevents.com</a>
-                <a href="tel:+639000000000">+63 9XX XXX XXXX</a>
+                <a href="tel:+639000000000">+63 917 123 4567</a>
                 <span>Monday to Saturday, 9:00 AM to 6:00 PM</span>
             </div>
         </div>

@@ -18,6 +18,8 @@ $userNickname = htmlspecialchars((string) ($sessionUser['nickname'] ?? ''), ENT_
     rel="stylesheet"
   />
         <link rel="stylesheet" href="style.css" />
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>tailwind.config={theme:{extend:{colors:{obsidian:'#121212',charcoal:'#181818',line:'#282828',gold:'#D4AF37',ivory:'#F5F2EB'},fontFamily:{serif:['Playfair Display','serif'],sans:['Montserrat','sans-serif']}}}}</script>
     </head>
     <body>
         <header class="navbar">
@@ -227,6 +229,44 @@ $userNickname = htmlspecialchars((string) ($sessionUser['nickname'] ?? ''), ENT_
                 </aside>
             </div>
         </section>
+        <section class="border-y border-[#282828] bg-[#121212] py-20 sm:py-24" id="showcase" aria-labelledby="signature-moments-title">
+            <div class="mx-auto w-full max-w-[1200px] px-5 sm:px-8">
+                <div class="max-w-2xl">
+                    <p class="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-[#D4AF37]">UNFORGETTABLE EXPERIENCES</p>
+                    <h2 id="signature-moments-title" class="mt-3 font-serif text-4xl leading-tight text-[#F5F2EB] sm:text-5xl">Our Signature <em>Moments.</em></h2>
+                    <p class="mt-5 text-sm leading-7 text-[#9CA3AF] sm:text-base">From the energy in the room to the details no guest ever sees, every LEGATO event is built with disciplined production and genuine care.</p>
+                </div>
+                <div class="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
+                    <article class="group relative min-h-[390px] overflow-hidden rounded-2xl border border-[#D4AF37]/20 bg-[#181818] transition-all duration-300 hover:scale-[1.02] hover:border-[#D4AF37]/60 hover:shadow-lg hover:shadow-[#D4AF37]/10">
+                        <button type="button" class="showcase-trigger absolute inset-0 h-full w-full text-left focus:outline-none focus:ring-2 focus:ring-[#D4AF37]" data-showcase-src="assets/pic1.jpg" data-showcase-fallback="Assest/pic1.jpg" data-showcase-alt="LEGATO premium main stage production" data-showcase-title="Premium Stage Production" data-showcase-caption="Crystal-clear audio, immersive lighting, and a technical team in complete control." aria-label="Preview Premium Stage Production image">
+                            <img src="assets/pic1.jpg" onerror="this.onerror=null;this.src='Assest/pic1.jpg';" alt="LEGATO premium main stage production" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy">
+                            <span class="absolute left-5 top-5 rounded-full border border-[#D4AF37]/30 bg-[#121212]/70 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-[#D4AF37] backdrop-blur-md">Main Stage</span>
+                            <span class="absolute inset-0 bg-gradient-to-t from-[#121212] via-[#121212]/25 to-transparent"></span>
+                        </button>
+                        <div class="pointer-events-none absolute inset-x-0 bottom-0 p-6"><p class="font-mono text-[10px] uppercase tracking-[0.16em] text-[#9CA3AF]">VIP Production · Dumaguete</p><h3 class="mt-2 font-serif text-2xl text-[#F5F2EB]">Premium Stage Production</h3><p class="mt-2 pr-2 text-sm leading-6 text-[#F5F2EB]/80">Crystal-clear audio, immersive lighting, and a technical team in complete control.</p></div>
+                        <a href="booking.php" class="absolute bottom-6 left-6 z-10 text-xs font-semibold uppercase tracking-wider text-[#D4AF37] underline decoration-[#D4AF37]/50 underline-offset-4 transition hover:text-[#F5F2EB]">Book Similar Event →</a>
+                    </article>
+                    <article class="group relative min-h-[390px] overflow-hidden rounded-2xl border border-[#D4AF37]/20 bg-[#181818] transition-all duration-300 hover:scale-[1.02] hover:border-[#D4AF37]/60 hover:shadow-lg hover:shadow-[#D4AF37]/10">
+                        <button type="button" class="showcase-trigger absolute inset-0 h-full w-full text-left focus:outline-none focus:ring-2 focus:ring-[#D4AF37]" data-showcase-src="assets/pic2.jpg" data-showcase-fallback="Assest/pic2pg.jpg" data-showcase-alt="Guests enjoying a LEGATO event atmosphere" data-showcase-title="Atmosphere Guests Remember" data-showcase-caption="A celebration that feels effortless from the first welcome to the final applause." aria-label="Preview Atmosphere Guests Remember image">
+                            <img src="assets/pic2.jpg" onerror="this.onerror=null;this.src='Assest/pic2pg.jpg';" alt="Guests enjoying a LEGATO event atmosphere" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy">
+                            <span class="absolute left-5 top-5 rounded-full border border-[#D4AF37]/30 bg-[#121212]/70 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-[#D4AF37] backdrop-blur-md">Guest Experience</span>
+                            <span class="absolute inset-0 bg-gradient-to-t from-[#121212] via-[#121212]/25 to-transparent"></span>
+                        </button>
+                        <div class="pointer-events-none absolute inset-x-0 bottom-0 p-6"><p class="font-mono text-[10px] uppercase tracking-[0.16em] text-[#9CA3AF]">Grand Celebration · Live Energy</p><h3 class="mt-2 font-serif text-2xl text-[#F5F2EB]">Atmosphere Guests Remember</h3><p class="mt-2 pr-2 text-sm leading-6 text-[#F5F2EB]/80">A celebration that feels effortless from the first welcome to the final applause.</p></div>
+                        <a href="booking.php" class="absolute bottom-6 left-6 z-10 text-xs font-semibold uppercase tracking-wider text-[#D4AF37] underline decoration-[#D4AF37]/50 underline-offset-4 transition hover:text-[#F5F2EB]">Book Similar Event →</a>
+                    </article>
+                    <article class="group relative min-h-[390px] overflow-hidden rounded-2xl border border-[#D4AF37]/20 bg-[#181818] transition-all duration-300 hover:scale-[1.02] hover:border-[#D4AF37]/60 hover:shadow-lg hover:shadow-[#D4AF37]/10">
+                        <button type="button" class="showcase-trigger absolute inset-0 h-full w-full text-left focus:outline-none focus:ring-2 focus:ring-[#D4AF37]" data-showcase-src="assets/pic3.jpg" data-showcase-fallback="Assest/pic3.jpg" data-showcase-alt="LEGATO crew preparing behind the scenes" data-showcase-title="Precision Behind the Scenes" data-showcase-caption="The thoughtful planning and practiced teamwork that let every event run beautifully." aria-label="Preview Precision Behind the Scenes image">
+                            <img src="assets/pic3.jpg" onerror="this.onerror=null;this.src='Assest/pic3.jpg';" alt="LEGATO crew preparing behind the scenes" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy">
+                            <span class="absolute left-5 top-5 rounded-full border border-[#D4AF37]/30 bg-[#121212]/70 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-[#D4AF37] backdrop-blur-md">Behind The Scenes</span>
+                            <span class="absolute inset-0 bg-gradient-to-t from-[#121212] via-[#121212]/25 to-transparent"></span>
+                        </button>
+                        <div class="pointer-events-none absolute inset-x-0 bottom-0 p-6"><p class="font-mono text-[10px] uppercase tracking-[0.16em] text-[#9CA3AF]">Crew Focus · Event Execution</p><h3 class="mt-2 font-serif text-2xl text-[#F5F2EB]">Precision Behind the Scenes</h3><p class="mt-2 pr-2 text-sm leading-6 text-[#F5F2EB]/80">The thoughtful planning and practiced teamwork that let every event run beautifully.</p></div>
+                        <a href="booking.php" class="absolute bottom-6 left-6 z-10 text-xs font-semibold uppercase tracking-wider text-[#D4AF37] underline decoration-[#D4AF37]/50 underline-offset-4 transition hover:text-[#F5F2EB]">Book Similar Event →</a>
+                    </article>
+                </div>
+            </div>
+        </section>
         <section class="coverage-section">
             <div class="container coverage-grid">
                 <div>
@@ -279,9 +319,9 @@ $userNickname = htmlspecialchars((string) ($sessionUser['nickname'] ?? ''), ENT_
             <div class="footer-column">
                 <p class="footer-title">Get In Touch</p>
                 <div class="footer-links">
-                    <span>Dumaguete City, Philippines</span>
+                    <span>Dumaguete City, Philippines 6200</span>
                     <a href="mailto:info@legatoevents.com">info@legatoevents.com</a>
-                    <a href="tel:+639000000000">+63 9XX XXX XXXX</a>
+                    <a href="tel:+639171234567">+63 917 123 4567</a>
                     <span>Monday to Saturday, 9:00 AM to 6:00 PM</span>
                 </div>
             </div>
@@ -294,6 +334,21 @@ $userNickname = htmlspecialchars((string) ($sessionUser['nickname'] ?? ''), ENT_
         </div>
     </footer>
     <script src="script.js">
+    </script>
+    <div id="showcaseLightbox" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/95 p-4 opacity-0 backdrop-blur-md transition-opacity duration-300" role="dialog" aria-modal="true" aria-labelledby="showcaseLightboxTitle">
+        <button id="showcaseClose" type="button" class="absolute right-5 top-5 z-10 rounded-full border border-[#D4AF37]/40 bg-[#121212]/80 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-[#D4AF37] transition hover:bg-[#D4AF37] hover:text-[#121212]" aria-label="Close image preview">Close ×</button>
+        <div class="relative w-full max-w-6xl overflow-hidden rounded-2xl border border-[#D4AF37]/30 bg-[#181818] shadow-2xl"><img id="showcaseLightboxImage" src="" alt="" class="max-h-[72vh] w-full bg-[#121212] object-contain"><div class="border-t border-[#282828] px-6 py-5 sm:px-8"><p class="font-mono text-[10px] uppercase tracking-[0.18em] text-[#D4AF37]">LEGATO SIGNATURE MOMENT</p><h2 id="showcaseLightboxTitle" class="mt-2 font-serif text-3xl text-[#F5F2EB]"></h2><p id="showcaseLightboxCaption" class="mt-2 text-sm leading-6 text-[#9CA3AF]"></p></div></div>
+    </div>
+    <script>
+        (() => {
+            const lightbox = document.getElementById('showcaseLightbox'), image = document.getElementById('showcaseLightboxImage'), title = document.getElementById('showcaseLightboxTitle'), caption = document.getElementById('showcaseLightboxCaption'), closeButton = document.getElementById('showcaseClose');
+            let lastTrigger = null;
+            const close = () => { lightbox.classList.remove('opacity-100'); setTimeout(() => lightbox.classList.add('hidden'), 300); lastTrigger?.focus(); };
+            document.querySelectorAll('.showcase-trigger').forEach((trigger) => trigger.addEventListener('click', () => { lastTrigger = trigger; image.src = trigger.dataset.showcaseSrc; image.onerror = () => { image.onerror = null; image.src = trigger.dataset.showcaseFallback; }; image.alt = trigger.dataset.showcaseAlt; title.textContent = trigger.dataset.showcaseTitle; caption.textContent = trigger.dataset.showcaseCaption; lightbox.classList.remove('hidden'); requestAnimationFrame(() => lightbox.classList.add('opacity-100')); closeButton.focus(); }));
+            closeButton.addEventListener('click', close);
+            lightbox.addEventListener('click', (event) => { if (event.target === lightbox) close(); });
+            document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && !lightbox.classList.contains('hidden')) close(); });
+        })();
     </script>
 </body>
 </html>

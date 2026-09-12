@@ -131,11 +131,11 @@
             </div>
         </div>
         <div>
-            <p class="footer-title">Contact</p>
+                <p class="footer-title">Get In Touch</p>
             <div class="footer-links">
-                <span>Dumaguete City, Philippines</span>
+                <span>Dumaguete City, Philippines 6200</span>
                 <a href="mailto:info@legatoevents.com">info@legatoevents.com</a>
-                <a href="tel:+639000000000">+63 9XX XXX XXXX</a>
+                <a href="tel:+639000000000">+63 917 123 4567</a>
                 <span>Monday to Saturday, 9:00 AM to 6:00 PM</span>
             </div>
         </div>
