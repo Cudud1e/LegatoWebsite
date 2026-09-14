@@ -38,10 +38,20 @@ foreach ($customSelections as $service => $tier) {
 }
 
 $error = $_SESSION['inquiry_error'] ?? '';
-unset($_SESSION['inquiry_error']);
+$fieldErrors = $_SESSION['inquiry_field_errors'] ?? [];
+$oldInput = $_SESSION['inquiry_old'] ?? [];
+unset($_SESSION['inquiry_error'], $_SESSION['inquiry_field_errors'], $_SESSION['inquiry_old']);
 
 function escaped(string $value): string {
     return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+}
+function old(string $key, string $default = ''): string {
+    global $oldInput;
+    return htmlspecialchars((string) ($oldInput[$key] ?? $default), ENT_QUOTES, 'UTF-8');
+}
+function fieldError(string $key): string {
+    global $fieldErrors;
+    return isset($fieldErrors[$key]) ? '<small class="field-error">' . htmlspecialchars((string) $fieldErrors[$key], ENT_QUOTES, 'UTF-8') . '</small>' : '';
 }
 ?>
 <!DOCTYPE html>
@@ -83,6 +93,8 @@ function escaped(string $value): string {
         .payment-ledger div { display: flex; justify-content: space-between; gap: 15px; color: var(--muted); font-size: 13px; }
         .payment-ledger strong { color: var(--gold); }
         .form-error { margin: 22px 0; padding: 14px; border: 1px solid #9e4040; background: #281717; color: #f5c4c4; }
+        .field-error { color: #f5a5a5; font-size: 11px; line-height: 1.4; }
+        .booking-card .input-error { border-color: #d86969; }
         @media(max-width:760px) {
             .booking-grid, .package-options, .payment-options, .payment-method-grid { grid-template-columns: 1fr; }
             .booking-flow { padding: 45px 0; }
@@ -129,80 +141,74 @@ function escaped(string $value): string {
                     <legend>01 · Contact &amp; Event Details</legend>
                     <div class="booking-grid">
                         <label>Full Name
-                            <input name="full_name" required value="<?php echo escaped((string) ($user['full_name'] ?? '')); ?>">
+                            <input class="<?php echo isset($fieldErrors['full_name']) ? 'input-error' : ''; ?>" name="full_name" required value="<?php echo old('full_name', (string) ($user['full_name'] ?? '')); ?>"><?php echo fieldError('full_name'); ?>
                         </label>
                         <label>Email Address
-                            <input name="email" type="email" required value="<?php echo escaped((string) ($user['email'] ?? '')); ?>">
+                            <input class="<?php echo isset($fieldErrors['email']) ? 'input-error' : ''; ?>" name="email" type="email" required value="<?php echo old('email', (string) ($user['email'] ?? '')); ?>"><?php echo fieldError('email'); ?>
                         </label>
                         <label>Phone Number
-                            <input name="phone" type="tel" required value="<?php echo escaped((string) ($user['phone'] ?? '')); ?>">
+                            <input class="<?php echo isset($fieldErrors['phone']) ? 'input-error' : ''; ?>" name="phone" type="tel" required value="<?php echo old('phone', (string) ($user['phone'] ?? '')); ?>"><?php echo fieldError('phone'); ?>
                         </label>
                         <label>Target Event Date
-                            <input name="event_date" type="date" min="<?php echo date('Y-m-d'); ?>" required>
+                            <input class="<?php echo isset($fieldErrors['event_date']) ? 'input-error' : ''; ?>" name="event_date" type="date" min="<?php echo date('Y-m-d'); ?>" required value="<?php echo old('event_date'); ?>"><?php echo fieldError('event_date'); ?>
                         </label>
                         <label>Event Type
                             <select name="event_type" required>
                                 <option value="">Select event type</option>
-                                <option>Wedding</option>
-                                <option>Birthday/Debut</option>
-                                <option>Corporate Event</option>
-                                <option>School Gala</option>
-                                <option>Private Party</option>
-                                <option>Other</option>
-                            </select>
+                                <?php foreach (['Wedding', 'Birthday/Debut', 'Corporate Event', 'School Gala', 'Private Party', 'Other'] as $type): ?><option<?php echo old('event_type') === $type ? ' selected' : ''; ?>><?php echo escaped($type); ?></option><?php endforeach; ?>
+                            </select><?php echo fieldError('event_type'); ?>
                         </label>
                         <label>Expected Guests
-                            <input name="guest_count" type="number" min="1" required>
+                            <input name="guest_count" type="number" min="1" required value="<?php echo old('guest_count'); ?>">
                         </label>
                         <label>Event Start Time
-                            <input name="event_start_time" type="time" required>
+                            <input class="<?php echo isset($fieldErrors['event_start_time']) ? 'input-error' : ''; ?>" name="event_start_time" type="time" required value="<?php echo old('event_start_time'); ?>"><?php echo fieldError('event_start_time'); ?>
                         </label>
                         <label>Venue Setup Access
-                            <input name="setup_access_time" type="time" required>
+                            <input class="<?php echo isset($fieldErrors['setup_access_time']) ? 'input-error' : ''; ?>" name="setup_access_time" type="time" required value="<?php echo old('setup_access_time'); ?>"><?php echo fieldError('setup_access_time'); ?>
                         </label>
                         <label>Venue / Location
-                            <input name="venue" required value="<?php echo escaped((string) ($user['location'] ?? '')); ?>">
+                            <input class="<?php echo isset($fieldErrors['venue']) ? 'input-error' : ''; ?>" name="venue" required value="<?php echo old('venue', (string) ($user['location'] ?? '')); ?>"><?php echo fieldError('venue'); ?>
                         </label>
                         <label>Venue Type
                             <select name="venue_type" required>
                                 <option value="">Select venue type</option>
-                                <option>Indoor Ballroom / Hotel</option>
-                                <option>Outdoor Garden</option>
-                                <option>Outdoor Beach</option>
-                                <option>Private Residence</option>
-                            </select>
+                                <?php foreach (['Indoor Ballroom / Hotel', 'Outdoor Garden', 'Outdoor Beach', 'Private Residence'] as $type): ?><option<?php echo old('venue_type') === $type ? ' selected' : ''; ?>><?php echo escaped($type); ?></option><?php endforeach; ?>
+                            </select><?php echo fieldError('venue_type'); ?>
                         </label>
                     </div>
+                    <?php echo fieldError('package_type'); ?>
                 </fieldset>
 
                 <fieldset class="booking-section">
                     <legend>02 · Select Production Package</legend>
                     <div class="package-options">
                         <label class="package-option">
-                            <input type="radio" name="package_type" value="VIP 1: Elite Starter" data-total="49999"<?php echo $packageInterest === 'VIP 1: Elite Starter' ? ' checked' : ''; ?>>
+                            <input type="radio" name="package_type" value="VIP 1: Elite Starter" data-total="49999"<?php echo old('package_type', $packageInterest) === 'VIP 1: Elite Starter' ? ' checked' : ''; ?>>
                             <strong>VIP 1 · Elite Starter</strong>
                             <span>Up to 50 guests</span>
                             <b>₱49,999.00</b>
                         </label>
                         <label class="package-option">
-                            <input type="radio" name="package_type" value="VIP 2: Prestige" data-total="79999"<?php echo $packageInterest === 'VIP 2: Prestige' ? ' checked' : ''; ?>>
+                            <input type="radio" name="package_type" value="VIP 2: Prestige" data-total="79999"<?php echo old('package_type', $packageInterest) === 'VIP 2: Prestige' ? ' checked' : ''; ?>>
                             <strong>VIP 2 · Prestige</strong>
                             <span>50–150 guests</span>
                             <b>₱79,999.00</b>
                         </label>
                         <label class="package-option">
-                            <input type="radio" name="package_type" value="VIP 3: Grand Luxe" data-total="179999"<?php echo $packageInterest === 'VIP 3: Grand Luxe' ? ' checked' : ''; ?>>
+                            <input type="radio" name="package_type" value="VIP 3: Grand Luxe" data-total="179999"<?php echo old('package_type', $packageInterest) === 'VIP 3: Grand Luxe' ? ' checked' : ''; ?>>
                             <strong>VIP 3 · Grand Luxe</strong>
                             <span>150+ guests</span>
                             <b>₱179,999.00</b>
                         </label>
                         <label class="package-option">
-                            <input type="radio" name="package_type" value="Custom Build" data-total="<?php echo $customTotal; ?>"<?php echo $packageInterest === 'Custom Build' ? ' checked' : ''; ?>>
+                            <input type="radio" name="package_type" value="Custom Build" data-total="<?php echo $customTotal; ?>"<?php echo old('package_type', $packageInterest) === 'Custom Build' ? ' checked' : ''; ?>>
                             <strong>Custom Build</strong>
                             <span><?php echo $customSelections ? escaped(implode(', ', array_keys($customSelections))) : 'Choose your services and tiers'; ?></span>
                             <b><?php echo $customSelections ? '₱' . number_format($customTotal, 2) : 'Configure services'; ?></b>
                         </label>
                     </div>
+                    <?php echo fieldError('payment_method'); ?>
                     <input id="estimated_total" type="hidden" name="estimated_total" value="0">
                     <input type="hidden" name="custom_services" value="<?php echo escaped($customServices); ?>">
                 </fieldset>
@@ -211,12 +217,12 @@ function escaped(string $value): string {
                     <legend>03 · Payment &amp; Reservation</legend>
                     <div class="payment-options">
                         <label class="payment-option">
-                            <input type="radio" name="payment_method" value="Online Payment" checked>
+                            <input type="radio" name="payment_method" value="Online Payment"<?php echo old('payment_method', 'Online Payment') === 'Online Payment' ? ' checked' : ''; ?>>
                             <strong>Online Payment</strong>
                             <span>GCash, Maya, or Bank Transfer. Receipt required.</span>
                         </label>
                         <label class="payment-option">
-                            <input type="radio" name="payment_method" value="In Person">
+                            <input type="radio" name="payment_method" value="In Person"<?php echo old('payment_method') === 'In Person' ? ' checked' : ''; ?>>
                             <strong>In-Person Payment</strong>
                             <span>Settle at the LEGATO Main Office in Dumaguete City.</span>
                         </label>
@@ -250,10 +256,11 @@ function escaped(string $value): string {
                         </div>
                         <div class="booking-grid">
                             <label>Transaction Reference Number
-                                <input name="payment_reference" id="payment_reference" required>
+                                <input name="payment_reference" id="payment_reference" required value="<?php echo old('payment_reference'); ?>">
                             </label>
                             <label>Proof of Payment (JPG, PNG, or PDF)
                                 <input name="receipt_file" id="receipt_file" type="file" accept=".jpg,.jpeg,.png,.pdf" required>
+                                <?php echo fieldError('receipt_file'); ?>
                             </label>
                         </div>
                     </div>
@@ -264,7 +271,7 @@ function escaped(string $value): string {
                     </div>
 
                     <label style="margin-top:20px;">Event Notes
-                        <textarea name="notes" required placeholder="Tell us about your program, technical requirements, or special requests."></textarea>
+                        <textarea class="<?php echo isset($fieldErrors['notes']) ? 'input-error' : ''; ?>" name="notes" required placeholder="Tell us about your program, technical requirements, or special requests."><?php echo old('notes'); ?></textarea><?php echo fieldError('notes'); ?>
                     </label>
                 </fieldset>
 

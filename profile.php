@@ -5,11 +5,13 @@ if (!isset($_SESSION['user']['id'])) { header('Location: login.php?redirect=prof
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/includes/csrf.php';
 require_once __DIR__ . '/includes/validation.php';
+require_once __DIR__ . '/includes/invoice_schema.php';
 $userId = (int) $_SESSION['user']['id'];
 $message = '';
 $error = '';
 try {
     $pdo = getDatabaseConnection();
+    ensureInvoiceSchema($pdo);
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'update_profile') {
         if (!verifyCsrfToken($_POST['csrf_token'] ?? null)) {
             $error = 'Your form session expired. Please try again.';
@@ -35,9 +37,18 @@ try {
     $accountStatement->execute([$userId]);
     $account = $accountStatement->fetch();
     if (!$account) { header('Location: logout.php'); exit; }
-    $history = $pdo->prepare('SELECT reference_no, event_type, target_event_date, event_start_time, venue, venue_type, guest_count, package_interest, budget_range, requested_services, special_requests, message, status, payment_reference, receipt_path, COALESCE(total_amount, estimated_cost, 0) AS estimated_cost, created_at FROM inquiries WHERE user_id = ? ORDER BY created_at DESC');
+    $history = $pdo->prepare("SELECT i.reference_no, i.event_type, i.target_event_date, i.event_start_time, i.venue, i.venue_type, i.guest_count, i.package_interest, i.budget_range, i.requested_services, i.special_requests, i.message, i.status, i.payment_reference, i.receipt_path, COALESCE(i.total_amount, i.estimated_cost, 0) AS estimated_cost, i.created_at, inv.id AS invoice_id, COALESCE(NULLIF(inv.amount_due, 0), inv.down_payment_amount, 0) AS invoice_amount_due, inv.amount_paid AS invoice_amount_paid, inv.remaining_balance AS invoice_remaining_balance, inv.payment_date AS invoice_payment_date, inv.downpayment_date AS invoice_downpayment_date, inv.final_payment_date AS invoice_final_payment_date, inv.verified_by_admin AS invoice_verified_by_admin, inv.due_date AS invoice_due_date, inv.status AS invoice_status, inv.public_token AS invoice_token FROM inquiries i LEFT JOIN invoices inv ON inv.inquiry_id = i.id AND LOWER(COALESCE(inv.status, '')) IN ('pending payment', 'unpaid', 'paid', 'down payment paid', '50% paid', 'fully paid') AND inv.percentage = 50 WHERE i.user_id = ? ORDER BY i.created_at DESC");
     $history->execute([$userId]);
     $inquiries = $history->fetchAll();
+    $createInvoiceToken = $pdo->prepare('UPDATE invoices inv JOIN inquiries i ON i.id = inv.inquiry_id SET inv.public_token = ? WHERE inv.id = ? AND i.user_id = ? AND inv.public_token IS NULL');
+    foreach ($inquiries as &$inquiry) {
+        if (!empty($inquiry['invoice_id']) && empty($inquiry['invoice_token'])) {
+            $token = bin2hex(random_bytes(32));
+            $createInvoiceToken->execute([$token, $inquiry['invoice_id'], $userId]);
+            if ($createInvoiceToken->rowCount() === 1) $inquiry['invoice_token'] = $token;
+        }
+    }
+    unset($inquiry);
 } catch (PDOException $exception) {
     $error = 'Your account information is temporarily unavailable. Please try again later.';
     $account = ['full_name' => '', 'nickname' => '', 'email' => '', 'phone' => '', 'location' => '', 'created_at' => 'now'];
@@ -60,6 +71,7 @@ $pageTitle = 'My Account | LEGATO Events & Productions';
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,600&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="style.css">
+        <script src="https://cdn.tailwindcss.com"></script>
     </head>
     <body class="inner-page">
     <header class="navbar">
@@ -169,7 +181,7 @@ $pageTitle = 'My Account | LEGATO Events & Productions';
                     <a class="btn btn-gold" href="booking.php">Start an Event Inquiry</a>
                 </div>
             <?php endif; ?>
-            <?php foreach ($inquiries as $inquiry): $services = json_decode((string) $inquiry['requested_services'], true) ?: []; $estimatedCost = (float) $inquiry['estimated_cost'] ?: ($packagePrices[$inquiry['package_interest']] ?? 0); ?>
+            <?php foreach ($inquiries as $inquiry): $services = json_decode((string) ($inquiry['requested_services'] ?? '[]'), true) ?: []; $estimatedCost = (float) ($inquiry['estimated_cost'] ?? 0) ?: ($packagePrices[$inquiry['package_interest'] ?? ''] ?? 0); $hasInvoice = !empty($inquiry['invoice_id']) && !empty($inquiry['invoice_token']); $invoiceState = strtolower((string) ($inquiry['invoice_status'] ?? '')); $isFullyPaid = $hasInvoice && $invoiceState === 'fully paid' && (int) ($inquiry['invoice_verified_by_admin'] ?? 0) === 1; $isFullPending = $hasInvoice && !$isFullyPaid && in_array($invoiceState, ['paid', 'down payment paid', '50% paid'], true); $isFiftyPaid = $hasInvoice && !$isFullyPaid && in_array($invoiceState, ['paid', 'down payment paid', '50% paid'], true); $hasPendingInvoice = $hasInvoice && !$isFiftyPaid && !$isFullyPaid; $invoiceUrl = $hasInvoice ? 'view_invoice.php?id=' . (int) $inquiry['invoice_id'] . '&token=' . rawurlencode((string) $inquiry['invoice_token']) : ''; $receiptUrl = $hasInvoice ? 'view_receipt.php?id=' . (int) $inquiry['invoice_id'] . '&token=' . rawurlencode((string) $inquiry['invoice_token']) : ''; ?>
                 <article class="booking-card">
                     <div class="booking-card-header">
                         <div>
@@ -194,6 +206,48 @@ $pageTitle = 'My Account | LEGATO Events & Productions';
                             <?php echo money($estimatedCost); ?>
                         </strong>
                     </div>
+                    <?php if ($isFullPending): ?>
+                        <section class="mt-5 rounded-xl border border-[#F59E0B]/50 bg-[#121212] p-4 text-[#F5F2EB]">
+                            <span class="inline-flex rounded-full bg-[#F59E0B]/10 px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-[#F59E0B]">Full Payment Verification Pending</span>
+                            <p class="mt-3 text-sm text-[#9CA3AF]">Your final balance submission is awaiting the LEGATO team’s account-clearance verification.</p>
+                        </section>
+                    <?php elseif ($isFullyPaid): ?>
+                        <section class="mt-5 rounded-xl border border-[#10B981]/50 bg-[#121212] p-4 text-[#F5F2EB] sm:p-5">
+                            <span class="inline-flex rounded-full bg-[#10B981]/10 px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-[#D4AF37]">100% Fully Paid &amp; Cleared</span>
+                            <p class="mt-3 text-sm text-[#9CA3AF]">Your event account has been settled and officially closed.</p>
+                            <div class="mt-5 grid gap-3 border-y border-[#282828] py-4 text-sm sm:grid-cols-3"><div><span class="block font-mono text-[10px] uppercase tracking-wider text-[#6B7280]">Initial 50% downpayment</span><strong class="mt-1 block font-mono text-[#10B981]">Paid · <?php echo !empty($inquiry['invoice_downpayment_date']) ? escaped(date('M d, Y', strtotime((string) $inquiry['invoice_downpayment_date']))) : 'Verified'; ?></strong></div><div><span class="block font-mono text-[10px] uppercase tracking-wider text-[#6B7280]">Final 50% balance</span><strong class="mt-1 block font-mono text-[#10B981]">Paid &amp; Verified · <?php echo !empty($inquiry['invoice_final_payment_date']) ? escaped(date('M d, Y', strtotime((string) $inquiry['invoice_final_payment_date']))) : 'Verified'; ?></strong></div><div><span class="block font-mono text-[10px] uppercase tracking-wider text-[#6B7280]">Remaining balance</span><strong class="mt-1 block font-mono text-[#10B981]">&#8369;0.00</strong></div></div>
+                            <div class="mt-4 flex justify-end"><a href="<?php echo escaped($receiptUrl); ?>&amp;type=full" target="_blank" rel="noopener noreferrer" class="rounded bg-[#D4AF37] px-4 py-2.5 text-center text-xs font-bold text-[#121212] transition hover:bg-white">Download Full Official Receipt</a></div>
+                        </section>
+                    <?php endif; ?>
+                    <?php if ($isFiftyPaid): ?>
+                        <section class="mt-5 rounded-xl border border-[#10B981]/50 bg-[#121212] p-4 text-[#F5F2EB] sm:p-5" aria-label="50 percent payment confirmed">
+                            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                                <div><span class="inline-flex rounded-full bg-[#10B981]/10 px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-[#10B981]">50% Paid · Booking Confirmed</span><p class="mt-3 text-sm text-[#9CA3AF]">Your downpayment has been verified. Your booking is officially confirmed.</p></div>
+                                <div class="sm:text-right"><span class="block font-mono text-[10px] uppercase tracking-wider text-[#6B7280]">Payment confirmed</span><strong class="mt-1 block font-mono text-sm text-[#10B981]"><?php echo !empty($inquiry['invoice_payment_date']) ? escaped(date('M d, Y', strtotime((string) $inquiry['invoice_payment_date']))) : 'Verified'; ?></strong></div>
+                            </div>
+                            <div class="mt-5 grid gap-3 border-y border-[#282828] py-4 text-sm sm:grid-cols-3"><div><span class="block font-mono text-[10px] uppercase tracking-wider text-[#6B7280]">Total package</span><strong class="mt-1 block font-mono text-[#F5F2EB]">&#8369;<?php echo number_format($estimatedCost, 2); ?></strong></div><div><span class="block font-mono text-[10px] uppercase tracking-wider text-[#6B7280]">Amount paid (50%)</span><strong class="mt-1 block font-mono text-[#10B981]">&#8369;<?php echo number_format((float) ($inquiry['invoice_amount_paid'] ?? 0), 2); ?></strong></div><div><span class="block font-mono text-[10px] uppercase tracking-wider text-[#6B7280]">Remaining balance</span><strong class="mt-1 block font-mono text-[#D4AF37]">&#8369;<?php echo number_format((float) ($inquiry['invoice_remaining_balance'] ?? 0), 2); ?></strong><span class="mt-1 block text-xs text-[#9CA3AF]">Due on event date</span></div></div>
+                            <div class="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end"><a href="<?php echo escaped($receiptUrl); ?>" target="_blank" rel="noopener noreferrer" class="rounded border border-[#282828] bg-[#181818] px-4 py-2.5 text-center text-xs font-semibold text-[#F5F2EB] transition hover:border-[#10B981] hover:text-[#10B981]">View Payment Receipt ↗</a><a href="<?php echo escaped($receiptUrl); ?>" target="_blank" rel="noopener noreferrer" class="rounded bg-[#D4AF37] px-4 py-2.5 text-center text-xs font-bold text-[#121212] transition hover:bg-white">Download Official Receipt</a></div>
+                        </section>
+                    <?php endif; ?>
+                    <?php if ($hasPendingInvoice): ?>
+                        <section class="mt-5 rounded-xl border border-[#D4AF37]/30 bg-[#121212] p-4 text-[#F5F2EB] sm:p-5" aria-label="Pending 50 percent downpayment invoice">
+                            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                    <span class="inline-flex rounded-full bg-[#D4AF37]/10 px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-[#D4AF37]">50% Downpayment Invoice</span>
+                                    <p class="mt-3 text-sm text-[#9CA3AF]">Your event reservation has a pending payment request.</p>
+                                </div>
+                                <div class="sm:text-right">
+                                    <span class="block font-mono text-[10px] uppercase tracking-wider text-[#6B7280]">Amount due</span>
+                                    <strong class="mt-1 block font-mono text-2xl text-[#D4AF37]">&#8369;<?php echo number_format((float) ($inquiry['invoice_amount_due'] ?? 0), 2); ?></strong>
+                                    <span class="mt-1 block text-xs text-[#9CA3AF]">Due <?php echo !empty($inquiry['invoice_due_date']) ? escaped(date('M d, Y', strtotime((string) $inquiry['invoice_due_date']))) : 'upon confirmation'; ?></span>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
+                                <a href="<?php echo escaped($invoiceUrl); ?>" target="_blank" rel="noopener noreferrer" class="rounded border border-[#282828] bg-[#181818] px-4 py-2.5 text-center text-xs font-semibold text-[#F5F2EB] transition hover:border-[#D4AF37] hover:text-[#D4AF37]">View Invoice ↗</a>
+                                <a href="<?php echo escaped($invoiceUrl); ?>#payment" class="rounded bg-[#D4AF37] px-4 py-2.5 text-center text-xs font-bold text-[#121212] transition hover:bg-white">Proceed to Downpayment →</a>
+                            </div>
+                        </section>
+                    <?php endif; ?>
                     <details class="receipt-details">
                         <summary>View Itemized Receipt</summary>
                         <div class="receipt-content">

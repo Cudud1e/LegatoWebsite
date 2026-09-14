@@ -6,6 +6,17 @@ ALTER TABLE inquiries
 ALTER TABLE inquiries
   ADD COLUMN IF NOT EXISTS is_archived TINYINT(1) NULL DEFAULT 0 AFTER status;
 
+ALTER TABLE inquiries
+  ADD COLUMN IF NOT EXISTS confirmed_at TIMESTAMP NULL DEFAULT NULL AFTER is_archived;
+
+CREATE TABLE IF NOT EXISTS inquiry_contact_logs (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  inquiry_id INT UNSIGNED NOT NULL,
+  note TEXT NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_contact_log_inquiry FOREIGN KEY (inquiry_id) REFERENCES inquiries(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 UPDATE inquiries SET is_archived = 1
 WHERE status IN ('Confirmed', 'Rejected', 'Completed', 'Cancelled');
 
