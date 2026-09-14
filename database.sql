@@ -42,6 +42,7 @@ CREATE TABLE inquiries (
   message TEXT NOT NULL,
   status ENUM('Pending Review', 'Pending Verification', 'In-Person Pending', 'Confirmed', 'Rejected', 'Completed', 'Cancelled') NOT NULL DEFAULT 'Pending Review',
   is_archived TINYINT(1) NULL DEFAULT 0,
+  confirmed_at TIMESTAMP NULL DEFAULT NULL,
   total_amount DECIMAL(10, 2) NOT NULL DEFAULT 0,
   estimated_cost DECIMAL(10, 2) NOT NULL DEFAULT 0,
   deposit_status VARCHAR(80) NOT NULL DEFAULT 'Not Required Yet',

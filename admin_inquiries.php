@@ -49,7 +49,8 @@ function createInvoiceTable(PDO $pdo): void
     }
 }
 
-$message = '';
+$message = $_SESSION['invoice_message'] ?? '';
+unset($_SESSION['invoice_message']);
 $error = '';
 
 try {
@@ -172,13 +173,13 @@ try {
                     <?php if ($inquiry['invoice_number']): ?>
                         <p class="label">Invoice <?php echo escaped((string) $inquiry['invoice_number']); ?></p>
                         <span class="badge<?php echo $inquiry['invoice_status'] === 'Paid in Full' ? ' paid' : ''; ?>"><?php echo escaped((string) $inquiry['invoice_status']); ?></span>
-                        <?php if ($inquiry['invoice_status'] === 'Unpaid'): ?>
-                            <form method="post"><input type="hidden" name="csrf_token" value="<?php echo escaped(csrfToken()); ?>"><input type="hidden" name="action" value="confirm_payment"><input type="hidden" name="inquiry_id" value="<?php echo (int) $inquiry['id']; ?>"><button class="secondary" type="submit">Confirm 50% Payment</button></form>
-                        <?php elseif ($inquiry['invoice_status'] === 'Down Payment Paid'): ?>
-                            <form method="post"><input type="hidden" name="csrf_token" value="<?php echo escaped(csrfToken()); ?>"><input type="hidden" name="action" value="mark_paid_full"><input type="hidden" name="inquiry_id" value="<?php echo (int) $inquiry['id']; ?>"><button class="secondary" type="submit">Mark Paid in Full</button></form>
+                        <?php if (in_array($inquiry['invoice_status'], ['Unpaid', 'Pending Payment'], true)): ?>
+                            <form method="post" action="confirm_payment.php" onsubmit="return confirm('Record the 50% downpayment as paid?');"><input type="hidden" name="csrf_token" value="<?php echo escaped(csrfToken()); ?>"><input type="hidden" name="inquiry_id" value="<?php echo (int) $inquiry['id']; ?>"><input type="hidden" name="total_amount" value="<?php echo number_format((float) $inquiry['total_amount'], 2, '.', ''); ?>"><input type="hidden" name="payment_type" value="50_percent_paid"><select name="payment_mode" required><option value="Online Payment">Online Payment</option><option value="In Person">In-Person Payment</option></select><button class="secondary" type="submit">Mark 50% Paid</button></form>
+                        <?php elseif (in_array($inquiry['invoice_status'], ['Down Payment Paid', 'Paid'], true)): ?>
+                            <button class="secondary full-payment-review" type="button" data-inquiry-id="<?php echo (int) $inquiry['id']; ?>" data-name="<?php echo escaped((string) $inquiry['name']); ?>" data-total="<?php echo number_format((float) $inquiry['total_amount'], 2, '.', ''); ?>" data-method="<?php echo escaped((string) ($inquiry['payment_method'] ?: 'Online Payment')); ?>" data-reference="<?php echo escaped((string) ($inquiry['payment_reference'] ?: $inquiry['reference_no'])); ?>" data-receipt="<?php echo escaped((string) ($inquiry['receipt_path'] ?? '')); ?>">Verify &amp; Approve Full Payment</button>
                         <?php endif; ?>
                     <?php else: ?>
-                        <form method="post"><input type="hidden" name="csrf_token" value="<?php echo escaped(csrfToken()); ?>"><input type="hidden" name="action" value="generate_invoice"><input type="hidden" name="inquiry_id" value="<?php echo (int) $inquiry['id']; ?>"><button type="submit">Generate 50% Invoice</button></form>
+                        <form method="post" action="confirm_payment.php" onsubmit="return confirm('Record the 50% downpayment as paid?');"><input type="hidden" name="csrf_token" value="<?php echo escaped(csrfToken()); ?>"><input type="hidden" name="inquiry_id" value="<?php echo (int) $inquiry['id']; ?>"><input type="hidden" name="total_amount" value="<?php echo number_format((float) $inquiry['total_amount'], 2, '.', ''); ?>"><input type="hidden" name="payment_type" value="50_percent_paid"><select name="payment_mode" required><option value="Online Payment">Online Payment</option><option value="In Person">In-Person Payment</option></select><button type="submit">Mark 50% Paid</button></form>
                     <?php endif; ?>
                 </article>
             <?php endforeach; ?>
@@ -190,9 +191,39 @@ try {
             <?php endforeach; ?>
         </section>
     </main>
+    <dialog id="fullPaymentModal">
+        <p class="label" style="color:#F59E0B">FULL PAYMENT VERIFICATION</p>
+        <h2 id="fullPaymentName">Customer</h2>
+        <dl>
+            <dt>Total amount (100%)</dt><dd id="fullPaymentTotal"></dd>
+            <dt>Payment method</dt><dd id="fullPaymentMethod"></dd>
+            <dt>Reference code</dt><dd id="fullPaymentReference"></dd>
+        </dl>
+        <p id="fullPaymentReceipt" class="muted"></p>
+        <form method="post" action="confirm_payment.php" id="fullPaymentForm">
+            <input type="hidden" name="csrf_token" value="<?php echo escaped(csrfToken()); ?>">
+            <input type="hidden" name="inquiry_id" id="fullPaymentInquiryId">
+            <input type="hidden" name="payment_type" value="full_payment_verified">
+            <input type="hidden" name="payment_mode" id="fullPaymentMode">
+            <label style="display:flex;gap:8px;align-items:flex-start;margin:20px 0;color:#F5F2EB;font-size:12px;"><input required type="checkbox" name="funds_verified" value="1">I have verified that 100% of the funds have cleared into our account.</label>
+            <div class="tabs"><button type="button" class="secondary" id="closeFullPaymentModal">Cancel</button><button type="submit" style="background:#10B981;border-color:#10B981">Confirm &amp; Close Account</button></div>
+        </form>
+    </dialog>
     <script>
         document.querySelectorAll('[data-receipt-dialog]').forEach((button) => button.addEventListener('click', () => document.getElementById(button.dataset.receiptDialog).showModal()));
         document.querySelectorAll('[data-invoice-tab]').forEach((button) => button.addEventListener('click', () => { const paid = button.dataset.invoiceTab === 'paid'; document.getElementById('active-invoices').hidden = paid; document.getElementById('paid-invoices').hidden = !paid; }));
+        const fullPaymentModal = document.getElementById('fullPaymentModal');
+        document.querySelectorAll('.full-payment-review').forEach((button) => button.addEventListener('click', () => {
+            document.getElementById('fullPaymentName').textContent = button.dataset.name;
+            document.getElementById('fullPaymentTotal').textContent = '₱' + Number(button.dataset.total).toLocaleString('en-PH', { minimumFractionDigits: 2 });
+            document.getElementById('fullPaymentMethod').textContent = button.dataset.method;
+            document.getElementById('fullPaymentReference').textContent = button.dataset.reference;
+            document.getElementById('fullPaymentInquiryId').value = button.dataset.inquiryId;
+            document.getElementById('fullPaymentMode').value = button.dataset.method === 'In Person' ? 'In Person' : 'Online Payment';
+            document.getElementById('fullPaymentReceipt').innerHTML = button.dataset.receipt ? '<a target="_blank" rel="noopener noreferrer" href="' + button.dataset.receipt.replace(/"/g, '%22') + '">Open uploaded receipt</a>' : 'No receipt file is attached. Verify cash payment records before approval.';
+            fullPaymentModal.showModal();
+        }));
+        document.getElementById('closeFullPaymentModal').addEventListener('click', () => fullPaymentModal.close());
     </script>
 </body>
 </html>

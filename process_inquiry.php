@@ -13,6 +13,16 @@ if (!verifyCsrfToken($_POST['csrf_token'] ?? null)) {
     header('Location: booking.php');
     exit;
 }
+function returnWithInquiryErrors(array $errors, string $summary = 'Please correct the highlighted booking details and try again.'): never
+{
+    $allowed = ['full_name', 'email', 'phone', 'event_date', 'event_type', 'guest_count', 'event_start_time', 'setup_access_time', 'venue', 'venue_type', 'package_type', 'payment_method', 'payment_reference', 'notes', 'custom_services'];
+    $_SESSION['inquiry_old'] = [];
+    foreach ($allowed as $key) if (isset($_POST[$key]) && is_scalar($_POST[$key])) $_SESSION['inquiry_old'][$key] = trim((string) $_POST[$key]);
+    $_SESSION['inquiry_field_errors'] = $errors;
+    $_SESSION['inquiry_error'] = $summary;
+    header('Location: booking.php');
+    exit;
+}
 $user = $_SESSION['user'] ?? [];
 $name = trim($_POST['name'] ?? $_POST['full_name'] ?? ($user['full_name'] ?? ''));
 $email = filter_var(trim($_POST['email'] ?? ($user['email'] ?? '')), FILTER_VALIDATE_EMAIL);
@@ -70,48 +80,46 @@ foreach ($customSelection as $service => $tier) {
 }
 $validStartTime = preg_match('/^([01]\\d|2[0-3]):[0-5]\\d$/', $eventStartTime) === 1;
 $validSetupTime = preg_match('/^([01]\\d|2[0-3]):[0-5]\\d$/', $setupAccessTime) === 1;
-if ($name === '' || strlen($name) > 120 || !$email || !isValidPhoneNumber($phone) || !in_array($eventType, $eventTypes, true) || !isValidDateOnOrAfterToday($eventDate) || !$validStartTime || !$validSetupTime || $venue === '' || strlen($venue) > 255 || !in_array($venueType, $venueTypes, true) || $guestCount === false || $guestCount > 100000 || !in_array($packageInterest, $packages, true) || !in_array($paymentMethod, $paymentMethods, true) || ($packageInterest === 'Custom Build' && $totalAmount <= 0) || ($budgetRange !== null && !in_array($budgetRange, $budgetRanges, true)) || $inquiry === '' || strlen($inquiry) > 5000 || strlen($specialRequests) > 5000) {
-    $_SESSION['inquiry_error'] = 'Please complete all required booking details before sending your inquiry.';
-    header('Location: booking.php');
-    exit;
-}
+$fieldErrors = [];
+if ($name === '' || strlen($name) > 120) $fieldErrors['full_name'] = 'Enter your full name (up to 120 characters).';
+if (!$email) $fieldErrors['email'] = 'Enter a valid email address.';
+if (!isValidPhoneNumber($phone)) $fieldErrors['phone'] = 'Enter a valid phone number.';
+if (!in_array($eventType, $eventTypes, true)) $fieldErrors['event_type'] = 'Choose an event type.';
+if (!isValidDateOnOrAfterToday($eventDate)) $fieldErrors['event_date'] = 'Choose a valid future event date.';
+if (!$validStartTime) $fieldErrors['event_start_time'] = 'Choose a valid event start time.';
+if (!$validSetupTime) $fieldErrors['setup_access_time'] = 'Choose a valid venue setup access time.';
+if ($venue === '' || strlen($venue) > 255) $fieldErrors['venue'] = 'Enter the event venue or location.';
+if (!in_array($venueType, $venueTypes, true)) $fieldErrors['venue_type'] = 'Choose a venue type.';
+if ($guestCount === false || $guestCount > 100000) $fieldErrors['guest_count'] = 'Enter an expected guest count.';
+if (!in_array($packageInterest, $packages, true) || ($packageInterest === 'Custom Build' && $totalAmount <= 0)) $fieldErrors['package_type'] = 'Choose a valid production package.';
+if (!in_array($paymentMethod, $paymentMethods, true)) $fieldErrors['payment_method'] = 'Choose a payment method.';
+if ($inquiry === '' || strlen($inquiry) > 5000 || strlen($specialRequests) > 5000) $fieldErrors['notes'] = 'Enter event notes of up to 5,000 characters.';
+if ($fieldErrors) returnWithInquiryErrors($fieldErrors);
 $receiptPath = null;
 if ($paymentMethod === 'Online Payment') {
     if ($paymentReference === '' || strlen($paymentReference) > 100) {
-        $_SESSION['inquiry_error'] = 'Enter the transaction reference number for your online payment.';
-        header('Location: booking.php');
-        exit;
+        returnWithInquiryErrors(['payment_reference' => 'Enter the transaction reference number for your online payment.']);
     }
     $upload = $_FILES['receipt_file'] ?? null;
     if (!is_array($upload) || ($upload['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
-        $_SESSION['inquiry_error'] = 'Attach a proof-of-payment receipt for your online payment.';
-        header('Location: booking.php');
-        exit;
+        returnWithInquiryErrors(['receipt_file' => 'Attach a proof-of-payment receipt for your online payment.']);
     }
     if (($upload['size'] ?? 0) < 1 || $upload['size'] > 5 * 1024 * 1024) {
-        $_SESSION['inquiry_error'] = 'Your receipt must be between 1 byte and 5 MB.';
-        header('Location: booking.php');
-        exit;
+        returnWithInquiryErrors(['receipt_file' => 'Your receipt must be between 1 byte and 5 MB.']);
     }
     $extension = strtolower(pathinfo((string) ($upload['name'] ?? ''), PATHINFO_EXTENSION));
     $mimeType = (new finfo(FILEINFO_MIME_TYPE))->file((string) $upload['tmp_name']);
     $allowedUploads = ['jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'png' => 'image/png', 'pdf' => 'application/pdf'];
     if (!isset($allowedUploads[$extension]) || $allowedUploads[$extension] !== $mimeType) {
-        $_SESSION['inquiry_error'] = 'Upload a valid JPG, PNG, or PDF payment receipt.';
-        header('Location: booking.php');
-        exit;
+        returnWithInquiryErrors(['receipt_file' => 'Upload a valid JPG, PNG, or PDF payment receipt.']);
     }
     $receiptDirectory = __DIR__ . '/uploads/receipts';
     if (!is_dir($receiptDirectory) && !mkdir($receiptDirectory, 0755, true) && !is_dir($receiptDirectory)) {
-        $_SESSION['inquiry_error'] = 'The receipt storage directory is unavailable. Please try again.';
-        header('Location: booking.php');
-        exit;
+        returnWithInquiryErrors(['receipt_file' => 'The receipt storage directory is unavailable. Please try again.']);
     }
     $receiptFilename = 'receipt_' . bin2hex(random_bytes(16)) . '.' . $extension;
     if (!move_uploaded_file((string) $upload['tmp_name'], $receiptDirectory . '/' . $receiptFilename)) {
-        $_SESSION['inquiry_error'] = 'We could not save your receipt. Please try again.';
-        header('Location: booking.php');
-        exit;
+        returnWithInquiryErrors(['receipt_file' => 'We could not save your receipt. Please try again.']);
     }
     $receiptPath = 'uploads/receipts/' . $receiptFilename;
 }

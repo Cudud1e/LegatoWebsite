@@ -72,6 +72,11 @@ if ($inquiry) {
     if (!isset($inquiry['remaining_balance']) || (float) $inquiry['remaining_balance'] <= 0) {
         $inquiry['remaining_balance'] = $estimatedTotal - (float) $inquiry['downpayment_amount'];
     }
+
+    // Set deposit status context for online payments
+    if (($inquiry['payment_method'] ?? '') === 'Online Payment' && empty($inquiry['deposit_status'])) {
+        $inquiry['deposit_status'] = '50% Payment Submitted (Verification Pending)';
+    }
 }
 
 function escaped(mixed $value): string { 
@@ -195,39 +200,39 @@ $pageTitle = 'Inquiry Received | LEGATO Events & Productions';
 
                     <?php if (($inquiry['payment_method'] ?? '') === 'Online Payment'): ?>
                         <section class="payment-instructions">
-                            <p class="section-label">ONLINE PAYMENT INSTRUCTIONS</p>
-                            <h2>Your online payment is awaiting verification.</h2>
-                            <p>We received your payment reference<?php echo !empty($inquiry['payment_reference']) ? ' <strong>' . escaped((string) $inquiry['payment_reference']) . '</strong>' : ''; ?>. Our team will verify the receipt, equipment availability, and technical manpower within 24 hours before locking in your date.</p>
-                            <div class="payment-method-grid">
-                                <article>
-                                    <h3>GCash</h3>
-                                    <p>Account Name: LEGATO Events &amp; Productions</p>
-                                    <p>Account Number: To be provided on your approved invoice</p>
-                                    <span>QR Code supplied with invoice</span>
-                                </article>
-                                <article>
-                                    <h3>Maya</h3>
-                                    <p>Account Name: LEGATO Events &amp; Productions</p>
-                                    <p>Account Number: To be provided on your approved invoice</p>
-                                    <span>QR Code supplied with invoice</span>
-                                </article>
-                                <article>
-                                    <h3>Bank Transfer — BDO / PNB</h3>
-                                    <p>Account Name: LEGATO Events &amp; Productions</p>
-                                    <p>Account Number: To be provided on your approved invoice</p>
-                                    <span>Bank details supplied with invoice</span>
-                                </article>
+                            <p class="section-label">ONLINE PAYMENT CONFIRMATION</p>
+                            <h2>Your 50% payment has been submitted &amp; is awaiting verification.</h2>
+                            <p>
+                                Thank you for submitting your 50% down payment 
+                                (<strong>₱<?php echo number_format((float)$inquiry['downpayment_amount'], 2); ?></strong>) 
+                                <?php echo !empty($inquiry['payment_reference']) ? 'with Reference No. <strong>' . escaped((string) $inquiry['payment_reference']) . '</strong>' : ''; ?>.
+                            </p>
+                            <p>
+                                Our accounts team is currently cross-checking your transaction with our bank/e-wallet records. 
+                                Once verified, your date will be officially locked in, and an official 50% receipt will be issued to your account dashboard.
+                            </p>
+
+                            <div class="payment-status-card" style="margin-top: 1.5rem; padding: 1rem; border: 1px solid rgba(212, 175, 55, 0.3); background: #181818; border-radius: 8px;">
+                                <p style="margin: 0; color: #D4AF37; font-weight: 600;">
+                                    Current Payment Status: 
+                                    <span style="color: #F5F2EB; font-weight: 400;">
+                                        <?php echo escaped((string) ($inquiry['deposit_status'] ?: '50% Payment Submitted — Awaiting Admin Verification')); ?>
+                                    </span>
+                                </p>
                             </div>
                         </section>
                     <?php else: ?>
                         <section class="payment-instructions">
                             <p class="section-label">IN-PERSON PAYMENT &amp; OFFICE DETAILS</p>
-                            <h2>Visit us when your inquiry is approved.</h2>
+                            <h2>Please visit our office to settle your 50% down payment.</h2>
                             <div class="office-payment-card">
                                 <p><strong>LEGATO Main Office — Dumaguete City, Negros Oriental</strong></p>
                                 <p>Monday to Saturday, 9:00 AM to 6:00 PM</p>
+                                <p class="text-[#D4AF37] mt-2 font-bold">
+                                    Required Down Payment (50%): ₱<?php echo number_format((float) $inquiry['downpayment_amount'], 2); ?>
+                                </p>
                             </div>
-                            <p>Our team will review your request within 24 hours. Once approved, you may visit our office within 3 business days to settle the 50% down payment and sign the production agreement.</p>
+                            <p>Our team will review your inquiry details within 24 hours. Please visit our office within 3 business days to settle your 50% down payment (Cash / Check) and sign the official production agreement to confirm your reservation date.</p>
                         </section>
                     <?php endif; ?>
 
@@ -261,7 +266,7 @@ $pageTitle = 'Inquiry Received | LEGATO Events & Productions';
                         <?php echo escaped($successMessage); ?>
                     </p>
 
-                    <p class="urgent-contact">Need immediate assistance? Contact our event director directly at <a href="tel:+639000000000">++63 917 123 4567</a> or <a href="mailto:info@legatoevents.com">info@legatoevents.com</a>.</p>
+                    <p class="urgent-contact">Need immediate assistance? Contact our event director directly at <a href="tel:+639000000000">+63 917 123 4567</a> or <a href="mailto:info@legatoevents.com">info@legatoevents.com</a>.</p>
                 </div>
             </section>
         <?php endif; ?>
